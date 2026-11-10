@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Research — Jeevan Pramaan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-logo">Jeevan <span>Pramaan</span></div>
+      <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="problem.html">Problem</a></li>
+        <li><a href="research.html" class="active">Research</a></li>
+        <li><a href="ideation.html">Ideation</a></li>
+        <li><a href="prototype.html">Prototype</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <span class="section-label">User Research</span>
+      <h1>Understanding Viswan</h1>
+      <p>Building empathy through persona development and empathy mapping to deeply understand the elderly user's experience.</p>
+    </div>
+
+    <!-- User Persona -->
+    <section class="section">
+      <h2>User Persona</h2>
+      <div class="persona-card">
+        <div class="persona-avatar">👴</div>
+        <div class="persona-details">
+          <h3>Viswan</h3>
+          <p class="persona-age">82 years old · Retired government clerk · Kerala, India</p>
+          <p>Viswan is a retired government employee who depends on his monthly pension to cover daily expenses and medical bills. He lives with his son's family in a small town in Kerala. He owns a basic Android smartphone but uses it almost exclusively for phone calls and WhatsApp messages from family members.</p>
+          <dl class="persona-meta">
+            <dt>Location</dt>
+            <dd>Kerala, India — small town</dd>
+            <dt>Tech Comfort</dt>
+            <dd>Very low — uses smartphone only for calls and WhatsApp</dd>
+            <dt>Goal</dt>
+            <dd>Submit his annual digital life certificate without visiting the pension office</dd>
+            <dt>Support</dt>
+            <dd>Relies on his grandson Arjun (19) for most tech-related tasks</dd>
+            <dt>Key Frustration</dt>
+            <dd>"The photo looks fine to me — I don't know what's wrong with it."</dd>
+            <dt>Biggest Fear</dt>
+            <dd>Missing the submission deadline and not receiving his pension</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- Viswan's Story -->
+    <section class="section">
+      <h2>Viswan's Story</h2>
+      <div class="card" style="max-width:720px;">
+        <p>Every November, Viswan needs to submit his digital life certificate through Jeevan Pramaan to continue receiving his pension. His grandson Arjun usually helps him navigate the app. This year, Arjun downloaded the app, registered Viswan's details, and they reached the photo verification step.</p>
+        <p>Viswan sat in his usual chair in the living room. The camera opened. Arjun pointed the phone at Viswan and tapped "Capture." A few seconds later, the screen showed: <strong>"Verification Failed — Please try again."</strong></p>
+        <p>They tried again. Same result. Viswan adjusted his glasses. Failed again. Arjun tried a different angle. Failed. After six attempts, neither of them could figure out what was wrong.</p>
+        <div class="quote">
+          "The photo looks fine to me — I don't know what's wrong with it. Am I doing something wrong? Will I still get my pension?"
+        </div>
+        <p>Eventually, Arjun took Viswan on a 40-minute bus ride to the nearest pension office. They waited in line for over an hour. The official completed the certificate in minutes. The whole ordeal — which the app was supposed to prevent — cost them half a day.</p>
+        <p>The problem, most likely, was that Viswan's living room was too dimly lit for the face verification algorithm. But neither Viswan nor Arjun had any way to know that.</p>
+      </div>
+    </section>
+
+    <!-- Empathy Map -->
+    <section class="section">
+      <h2>Empathy Map</h2>
+      <p>Based on our research into elderly users' interactions with the Jeevan Pramaan system, we built the following empathy map for Viswan:</p>
+
+      <div class="empathy-grid">
+        <!-- Says -->
+        <div class="empathy-quadrant">
+          <div class="eq-label">💬 Says</div>
+          <p>"The photo looks fine to me — I don't know what's wrong with it."</p>
+          <p style="margin-top:8px;font-size:0.88rem;color:var(--muted);">"Every time I press the button, it just says 'failed.' What does that even mean?"</p>
+        </div>
+
+        <!-- Thinks -->
+        <div class="empathy-quadrant">
+          <div class="eq-label">🧠 Thinks</div>
+          <p>Believes the rejection is his own fault, since the system never explains the actual reason. Wonders if the system is broken, or if his phone is too old, or if he's "just not good with technology."</p>
+        </div>
+
+        <!-- Feels -->
+        <div class="empathy-quadrant">
+          <div class="eq-label">❤️ Feels</div>
+          <p>Anxiety about missing the pension deadline, and frustration after repeated failed attempts. Feels embarrassed about needing help and worried about being a burden on his family.</p>
+        </div>
+
+        <!-- Does -->
+        <div class="empathy-quadrant">
+          <div class="eq-label">🖐️ Does</div>
+          <p>Retries the same photo several times, guessing at what to change. Adjusts his glasses, sits up straighter, moves slightly — all without knowing if any of it matters. Eventually asks a family member to take over or goes to the office in person.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Insights -->
+    <section class="section">
+      <h2>Key Insights from Research</h2>
+      <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
+        <div class="card">
+          <h3>🔑 Insight 1</h3>
+          <p>Elderly users don't lack the willingness to use digital tools — they lack <strong>clear feedback</strong> when something goes wrong. The system's silence is interpreted as their personal failure.</p>
+        </div>
+        <div class="card">
+          <h3>🔑 Insight 2</h3>
+          <p>The most common photo verification failures are caused by <strong>environmental factors</strong> (poor lighting, glare, background clutter) — things the user can easily fix <em>if they know what the issue is</em>.</p>
+        </div>
+        <div class="card">
+          <h3>🔑 Insight 3</h3>
+          <p>Generic error messages destroy user confidence. After 2-3 failed attempts, users assume the system "doesn't work" and abandon the digital process entirely — a <strong>learned helplessness</strong> response.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Note -->
+    <div class="note">
+      <strong>Note:</strong> From the Empathy Map and User Persona built for this project — not a literal transcript, but a research-based composite reflecting common experiences of elderly pensioners interacting with digital verification systems in India.
+    </div>
+
+    <!-- CTA -->
+    <section style="text-align:center;padding:40px 0 0;">
+      <h2>From insights to ideas</h2>
+      <p style="color:var(--muted);margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto;">Using these research insights, we moved into ideation — brainstorming and evaluating solutions to address Viswan's core pain point.</p>
+      <a href="ideation.html" class="btn btn-primary">View Ideation →</a>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <strong>Human-Centred Design Process</strong> · Faculty of Engineering and Technology<br>
+    Experiment 3: Ideation and Prototyping
+  </footer>
+
+</body>
+</html>

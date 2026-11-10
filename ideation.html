@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ideation &amp; Solution — Jeevan Pramaan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-logo">Jeevan <span>Pramaan</span></div>
+      <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="problem.html">Problem</a></li>
+        <li><a href="research.html">Research</a></li>
+        <li><a href="ideation.html" class="active">Ideation</a></li>
+        <li><a href="prototype.html">Prototype</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <span class="section-label">Ideation &amp; Solution</span>
+      <h1>From Insights to Solutions</h1>
+      <p>Brainstorming, evaluating, and selecting the most effective approach to solve Viswan's problem.</p>
+    </div>
+
+    <!-- Problem Statement (HMW) -->
+    <section class="section">
+      <h2>Problem Statement</h2>
+      <div class="callout callout-green" style="font-size:1.1rem;">
+        <strong>"How might we</strong> help elderly pensioners understand why their photo verification failed, so they can fix the issue themselves without outside help?"
+      </div>
+      <p>This "How Might We" statement was derived directly from our user research findings. Viswan's core frustration is not that verification fails — it's that he <strong>doesn't know why</strong> it fails and <strong>can't figure out how to fix it</strong>. Any solution must address both of these gaps.</p>
+    </section>
+
+    <!-- Brainstorming -->
+    <section class="section">
+      <h2>Brainstorming: Ideas Explored</h2>
+      <p>Through structured brainstorming, we generated five potential solutions to address the problem statement. Each idea was designed to improve the photo verification experience for elderly users:</p>
+
+      <ol class="idea-list">
+        <li class="selected">
+          <div class="idea-number">1</div>
+          <div>
+            <h3>Plain-language rejection reason with specific fix instruction</h3>
+            <p>Replace the generic "Verification Failed" message with a specific, easy-to-understand reason (e.g., "Photo too dark — move to a brighter spot, like near a window") and a clear one-step instruction to fix it. The user sees exactly what went wrong and what to do next.</p>
+            <span style="display:inline-block;margin-top:8px;background:var(--accent);color:#fff;padding:3px 12px;border-radius:6px;font-size:0.78rem;font-weight:600;">✓ SELECTED</span>
+          </div>
+        </li>
+        <li>
+          <div class="idea-number">2</div>
+          <div>
+            <h3>Voice-guided step-by-step photo process</h3>
+            <p>An audio assistant that speaks instructions aloud in the user's language: "Hold your phone at arm's length," "Make sure your face is in the oval," "Good, now hold still." Useful for users who struggle to read on-screen text, but requires significant development effort and multilingual support.</p>
+          </div>
+        </li>
+        <li>
+          <div class="idea-number">3</div>
+          <div>
+            <h3>Automatic photo quality check before submission</h3>
+            <p>Before the photo is submitted for verification, the app runs a local quality check — evaluating brightness, blur, face detection, and alignment. Only photos that pass the check are submitted. This prevents wasted attempts but requires on-device ML models and adds processing time.</p>
+          </div>
+        </li>
+        <li>
+          <div class="idea-number">4</div>
+          <div>
+            <h3>Video call with support agent for assistance</h3>
+            <p>A "Get Help" button that connects the user to a live support agent via video call. The agent can see the user's camera, guide them through the process, and even approve the certificate manually. Effective but extremely expensive to scale and requires infrastructure.</p>
+          </div>
+        </li>
+        <li>
+          <div class="idea-number">5</div>
+          <div>
+            <h3>Simplified face-alignment overlay with real-time feedback</h3>
+            <p>A face-shaped overlay on the camera screen that changes color (red → yellow → green) as the user positions their face correctly. Provides real-time visual feedback without text. Intuitive, but doesn't address post-submission errors and requires real-time face tracking.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Idea Selection Matrix -->
+    <section class="section">
+      <h2>Idea Selection Matrix</h2>
+      <p>We evaluated each idea on four criteria, scoring each from 1 (low) to 5 (high). The idea with the highest total score was selected for prototyping.</p>
+
+      <div style="overflow-x:auto;">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>Idea</th>
+              <th>Feasibility</th>
+              <th>Impact</th>
+              <th>User Friendliness</th>
+              <th>Low Cost</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight-row">
+              <td><strong>1. Plain-language rejection reason</strong></td>
+              <td><span class="score-high">5</span></td>
+              <td><span class="score-high">5</span></td>
+              <td><span class="score-high">5</span></td>
+              <td><span class="score-high">5</span></td>
+              <td><strong class="score-high">20</strong></td>
+            </tr>
+            <tr>
+              <td>2. Voice-guided process</td>
+              <td><span class="score-mid">3</span></td>
+              <td><span class="score-mid">4</span></td>
+              <td><span class="score-high">5</span></td>
+              <td><span class="score-low">2</span></td>
+              <td><strong>14</strong></td>
+            </tr>
+            <tr>
+              <td>3. Auto quality check</td>
+              <td><span class="score-low">2</span></td>
+              <td><span class="score-mid">4</span></td>
+              <td><span class="score-mid">4</span></td>
+              <td><span class="score-low">2</span></td>
+              <td><strong>12</strong></td>
+            </tr>
+            <tr>
+              <td>4. Video call support</td>
+              <td><span class="score-low">2</span></td>
+              <td><span class="score-mid">3</span></td>
+              <td><span class="score-mid">3</span></td>
+              <td><span class="score-low">1</span></td>
+              <td><strong>9</strong></td>
+            </tr>
+            <tr>
+              <td>5. Face-alignment overlay</td>
+              <td><span class="score-mid">3</span></td>
+              <td><span class="score-mid">3</span></td>
+              <td><span class="score-mid">4</span></td>
+              <td><span class="score-mid">3</span></td>
+              <td><strong>13</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Why Idea 1 -->
+    <section class="section">
+      <h2>Why Idea #1 Was Selected</h2>
+      <div class="card" style="max-width:740px;">
+        <p>Idea #1 — <strong>Plain-language rejection reasons with specific fix instructions</strong> — scored highest across all four criteria. Here's why it's the strongest solution:</p>
+
+        <div style="margin-top:20px;">
+          <h3 style="color:var(--accent);">✅ Highest Feasibility</h3>
+          <p>It requires minimal backend changes. The verification system already knows <em>why</em> a photo failed (low brightness, face not detected, too much glare). The fix is simply surfacing this information to the user in clear language, rather than hiding it behind a generic error code.</p>
+        </div>
+
+        <div style="margin-top:20px;">
+          <h3 style="color:var(--accent);">✅ Maximum Impact</h3>
+          <p>It directly addresses the core pain point from our empathy map. Viswan said, "I don't know what's wrong." This solution tells him exactly what's wrong and how to fix it. The bridge between failure and success becomes one simple instruction.</p>
+        </div>
+
+        <div style="margin-top:20px;">
+          <h3 style="color:var(--accent);">✅ Most User-Friendly</h3>
+          <p>No new technology to learn. No voice interfaces. No video calls. The user simply reads one sentence — in plain language, not technical jargon — and follows one instruction. Even users with very low digital literacy can understand "Photo too dark — move to a brighter spot."</p>
+        </div>
+
+        <div style="margin-top:20px;">
+          <h3 style="color:var(--accent);">✅ Lowest Implementation Cost</h3>
+          <p>Unlike voice guidance (which needs multilingual voice synthesis), auto quality checks (which need on-device ML), or video support (which needs a call center), this solution requires only a change to the error message UI. The intelligence is already in the backend — it just needs to be communicated.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Connection to Empathy Map -->
+    <section class="section">
+      <h2>Connecting Solution to Research</h2>
+      <div class="comparison">
+        <div class="comparison-card before">
+          <h4>Empathy Map Finding</h4>
+          <p><strong>Says:</strong> "The photo looks fine to me — I don't know what's wrong with it."</p>
+          <p style="margin-top:8px"><strong>Does:</strong> Retries the same photo repeatedly, guessing at changes.</p>
+          <p style="margin-top:8px"><strong>Feels:</strong> Anxious about missing deadline, frustrated by lack of guidance.</p>
+        </div>
+        <div class="comparison-card after">
+          <h4>How Our Solution Responds</h4>
+          <p><strong>Tells him exactly:</strong> "Photo too dark — move to a brighter spot, like near a window."</p>
+          <p style="margin-top:8px"><strong>Enables:</strong> One specific action instead of random guessing.</p>
+          <p style="margin-top:8px"><strong>Restores confidence:</strong> "The system is helping me. I can do this."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section style="text-align:center;padding:40px 0 0;">
+      <h2>See it in action</h2>
+      <p style="color:var(--muted);margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto;">We built a working prototype that demonstrates exactly how plain-language error messages work in practice — with real camera integration.</p>
+      <a href="prototype.html" class="btn btn-primary">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try the Prototype →
+      </a>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <strong>Human-Centred Design Process</strong> · Faculty of Engineering and Technology<br>
+    Experiment 3: Ideation and Prototyping
+  </footer>
+
+</body>
+</html>

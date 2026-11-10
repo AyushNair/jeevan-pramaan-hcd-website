@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Problem — Jeevan Pramaan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-logo">Jeevan <span>Pramaan</span></div>
+      <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="problem.html" class="active">Problem</a></li>
+        <li><a href="research.html">Research</a></li>
+        <li><a href="ideation.html">Ideation</a></li>
+        <li><a href="prototype.html">Prototype</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <span class="section-label">Understanding the Problem</span>
+      <h1>The Problem</h1>
+      <p>Why elderly pensioners struggle with India's digital life certificate system — and why it matters.</p>
+    </div>
+
+    <!-- What is Jeevan Pramaan -->
+    <section class="section">
+      <h2>What is Jeevan Pramaan?</h2>
+      <p><strong>Jeevan Pramaan</strong> is India's digital life certificate system, launched by the Government of India to allow pensioners to prove they are alive remotely — without having to physically visit a bank or pension office. It uses Aadhaar-based biometric or face authentication to verify the pensioner's identity.</p>
+      <p>The system was designed to simplify the annual life certificate process. Previously, pensioners had to present themselves in person at a bank or government office, often travelling long distances and waiting in queues. Jeevan Pramaan aimed to make this process accessible from home — especially important for elderly and mobility-impaired citizens.</p>
+      <p>In theory, it's a powerful digital inclusion tool. In practice, its error communication leaves many elderly users stranded.</p>
+    </section>
+
+    <!-- Pain Points -->
+    <section class="section">
+      <h2>Current Pain Points</h2>
+      <div class="card-grid">
+        <div class="card">
+          <div class="feature-icon fi-red">
+            <svg width="24" height="24" fill="none" stroke="var(--red)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <h3>Generic "Verification Failed"</h3>
+          <p>When photo-based face verification fails, the system displays only a generic <strong>"Verification Failed — Please try again"</strong> message. There is no explanation of what went wrong — whether it was a lighting issue, face positioning, camera quality, or something else entirely.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon fi-amber">
+            <svg width="24" height="24" fill="none" stroke="var(--amber)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><circle cx="12" cy="16" r="1" fill="var(--amber)"/></svg>
+          </div>
+          <h3>No Guidance on What to Fix</h3>
+          <p>Elderly users have no way to diagnose the problem. Was the room too dark? Was their face partially covered? Was the photo blurry? Without specific feedback, they are left guessing — and usually guessing wrong.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon fi-red">
+            <svg width="24" height="24" fill="none" stroke="var(--red)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <h3>Anxiety About Missing Deadlines</h3>
+          <p>Pension payments depend on submitting the life certificate before the deadline. Repeated failed attempts without understanding why create significant anxiety. Many elderly pensioners worry they will lose their pension — their primary or only source of income.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon fi-amber">
+            <svg width="24" height="24" fill="none" stroke="var(--amber)" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+          </div>
+          <h3>Forced Physical Visits</h3>
+          <p>After multiple failed attempts, many pensioners give up on the digital process entirely. They revert to physically visiting pension offices — often involving long travel, waiting in queues, and needing assistance. This completely defeats the purpose of Jeevan Pramaan.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- The User's Experience -->
+    <section class="section">
+      <div class="callout callout-red">
+        <strong>The experience in a nutshell:</strong> An 82-year-old pensioner takes a photo. The system says "Verification Failed." He retries the same photo. Failed again. He asks his grandson for help. Neither of them knows what's wrong. Eventually, they take a bus to the pension office — a trip that costs half a day and significant physical effort.
+      </div>
+    </section>
+
+    <!-- Context & Statistics -->
+    <section class="section">
+      <h2>The Bigger Picture: India's Digital Divide</h2>
+      <p>India's elderly population is growing rapidly, and government services are increasingly going digital. But digital literacy among older citizens remains low, creating a widening gap between the services designed for them and their ability to use those services.</p>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-number">149M+</div>
+          <div class="stat-label">Indians aged 60 and above (Census 2021 projections)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">~25%</div>
+          <div class="stat-label">Estimated internet usage rate among India's elderly</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">68M+</div>
+          <div class="stat-label">Government pension beneficiaries across India</div>
+        </div>
+      </div>
+      <p>For many of these pensioners, the Jeevan Pramaan system is their only interaction with digital government services. If this experience is confusing and frustrating, it reinforces the perception that technology is "not for them" — pushing them further away from digital inclusion rather than bringing them in.</p>
+    </section>
+
+    <!-- Old Version Mockup -->
+    <section class="section">
+      <h2>The Current Error Screen</h2>
+      <p>Here's what a pensioner sees when their photo verification fails in the current system:</p>
+      <div class="old-screen">
+        <div class="old-screen-header">Jeevan Pramaan — Life Certificate</div>
+        <div class="old-screen-body">
+          <div class="old-screen-icon">
+            <svg width="32" height="32" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <h4>Verification Failed</h4>
+          <p>Your identity could not be verified. Please try again.</p>
+          <span class="old-screen-btn">Retry</span>
+        </div>
+      </div>
+      <p style="text-align:center;color:var(--muted);font-size:0.88rem;margin-top:16px;">
+        Mockup representation of the current Jeevan Pramaan error screen.<br>
+        Notice: no reason given, no guidance, no actionable next step.
+      </p>
+    </section>
+
+    <!-- What's Next -->
+    <section style="text-align:center;padding:32px 0;">
+      <h2>What comes next?</h2>
+      <p style="color:var(--muted);margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto;">We studied real user frustrations through empathy mapping and persona building to deeply understand this problem.</p>
+      <a href="research.html" class="btn btn-primary">View Our Research →</a>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <strong>Human-Centred Design Process</strong> · Faculty of Engineering and Technology<br>
+    Experiment 3: Ideation and Prototyping
+  </footer>
+
+</body>
+</html>
