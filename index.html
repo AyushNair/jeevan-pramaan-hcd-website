@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Jeevan Pramaan — Plain-Language Smart Auto-Capture (Version 2)</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230b6848'/><circle cx='50' cy='42' r='20' fill='white'/><path d='M25 80c0-14 11-25 25-25s25 11 25 25' fill='white'/></svg>">
   
   <!-- Atkinson Hyperlegible Font for maximum legibility (designed for low-vision readers) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1049,6 +1050,18 @@
       border: 0;
     }
 
+    /* Respect prefers-reduced-motion (Accessibility Requirement) */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .countdown-ring {
+        transition: none !important;
+      }
+    }
+
     /* Footer */
     footer.app-footer {
       width: 100%;
@@ -1756,6 +1769,11 @@
         videoStream = null;
       }
       resetCountdown();
+      stopProcessingLoop();
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
     }
 
     // Stop tracks when tab hidden (Requirement 11)
@@ -2424,9 +2442,13 @@
        ========================================================================== */
     function resetCountdown() {
       countdownStartTime = null;
+      allChecksPassing = false;
       countdownBadge.classList.remove('active');
       countdownRing.style.strokeDashoffset = '700';
     }
+
+    // allChecksPassing is set by the detection loop; the animation loop reads it
+    let allChecksPassing = false;
 
     function handleCountdown(timestamp) {
       if (!countdownStartTime) {
@@ -2447,8 +2469,24 @@
       if (elapsed >= CONFIG.COUNTDOWN_DURATION_MS) {
         // Continuous 1.5s countdown completed successfully! Trigger auto-capture
         resetCountdown();
+        allChecksPassing = false;
         triggerAutoCapture();
       }
+    }
+
+    // Smooth 60fps animation loop for countdown ring (separate from 10Hz detection)
+    let animationFrameId = null;
+    function startCountdownAnimationLoop() {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      function animate(timestamp) {
+        if (appState === 'guiding' || appState === 'counting_down') {
+          if (allChecksPassing) {
+            handleCountdown(timestamp);
+          }
+          animationFrameId = requestAnimationFrame(animate);
+        }
+      }
+      animationFrameId = requestAnimationFrame(animate);
     }
 
     /* ==========================================================================
@@ -2607,36 +2645,49 @@
     });
 
     /* ==========================================================================
-       Main Video Processing Loop (~10 times per second)
+       Main Detection Loop (~10 times per second) & Smooth 60fps Countdown
        ========================================================================== */
-    let lastProcessTime = 0;
+    let detectionInterval = null;
 
     async function startProcessingLoop() {
-      async function tick(timestamp) {
-        if (!videoStream || isOldVersionMode || appState === 'success' || appState === 'rejected') {
+      // Start the smooth 60fps countdown animation loop
+      startCountdownAnimationLoop();
+
+      // Run detection checks at ~10Hz using setInterval for consistent timing
+      if (detectionInterval) clearInterval(detectionInterval);
+      detectionInterval = setInterval(async () => {
+        if (!videoStream || isOldVersionMode || appState === 'success' || appState === 'rejected' || appState === 'capturing' || appState === 'verifying') {
           return;
         }
 
-        if (timestamp - lastProcessTime >= CONFIG.CHECK_INTERVAL_MS) {
-          lastProcessTime = timestamp;
+        const evalResult = await evaluateCurrentFrame();
+        updateInstructionUI(evalResult.topFailure);
+        updateChecklistUI(evalResult.checks);
 
-          const evalResult = await evaluateCurrentFrame();
-          updateInstructionUI(evalResult.topFailure);
-          updateChecklistUI(evalResult.checks);
-
-          if (evalResult.passed) {
-            // All checks hold -> advance 1.5s countdown ring
-            handleCountdown(timestamp);
-          } else {
-            // Any check fails -> reset countdown ring immediately (Requirement 1)
+        if (evalResult.passed) {
+          // All checks hold -> start or continue countdown
+          if (!allChecksPassing) {
+            allChecksPassing = true;
+            countdownStartTime = null; // Will be set by animation loop on next frame
+            appState = 'counting_down';
+          }
+        } else {
+          // Any check fails -> reset countdown ring immediately (Requirement 1)
+          if (allChecksPassing || countdownStartTime) {
+            allChecksPassing = false;
             resetCountdown();
+            appState = 'guiding';
           }
         }
+      }, CONFIG.CHECK_INTERVAL_MS);
+    }
 
-        requestAnimationFrame(tick);
+    function stopProcessingLoop() {
+      if (detectionInterval) {
+        clearInterval(detectionInterval);
+        detectionInterval = null;
       }
-
-      requestAnimationFrame(tick);
+      allChecksPassing = false;
     }
 
     /* ==========================================================================
