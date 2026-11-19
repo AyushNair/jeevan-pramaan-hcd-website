@@ -1,138 +1,2745 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jeevan Pramaan — Redesigning Error Communication for Elderly Users</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jeevan Pramaan — Plain-Language Smart Auto-Capture (Version 2)</title>
+  
+  <!-- Atkinson Hyperlegible Font for maximum legibility (designed for low-vision readers) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       CSS Custom Properties — Light & Dark Themes (High Contrast, Accessible)
+       ========================================================================== */
+    :root {
+      --font-family: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      
+      /* Light Theme (Default) */
+      --bg-page: #f6f5ef;
+      --bg-card: #ffffff;
+      --bg-card-subtle: #eeece2;
+      --border-subtle: #d7d4c7;
+      --border-bold: #a9a699;
+      
+      --ink: #1a1a18;
+      --ink-muted: #53524b;
+      --ink-subtle: #737167;
+      
+      --green: #0b6848;
+      --green-bg: #e2f6ee;
+      --green-border: #8fd4b8;
+      
+      --amber: #8e5400;
+      --amber-bg: #fff1d6;
+      --amber-border: #f0c37b;
+      
+      --red: #a42828;
+      --red-bg: #fde8e8;
+      --red-border: #f4a6a6;
+      
+      --blue: #1455a4;
+      --blue-bg: #e8f1fc;
+      --blue-border: #99c2f5;
+
+      --phone-border: #222220;
+      --phone-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 2px 10px rgba(0, 0, 0, 0.06);
+      --ring-track: rgba(255, 255, 255, 0.35);
+      --ring-active: #15b77e;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #131312;
+      --bg-card: #1f1f1d;
+      --bg-card-subtle: #292926;
+      --border-subtle: #3a3934;
+      --border-bold: #5c5a52;
+      
+      --ink: #f8f7f2;
+      --ink-muted: #bbb8ae;
+      --ink-subtle: #8a887e;
+      
+      --green: #25bb84;
+      --green-bg: #103829;
+      --green-border: #1d6e4e;
+      
+      --amber: #f5a021;
+      --amber-bg: #3d2806;
+      --amber-border: #754b0a;
+      
+      --red: #f16666;
+      --red-bg: #3f1313;
+      --red-border: #782222;
+      
+      --blue: #6aa8f8;
+      --blue-bg: #122844;
+      --blue-border: #1d4b84;
+
+      --phone-border: #3c3a34;
+      --phone-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+      --ring-track: rgba(255, 255, 255, 0.2);
+      --ring-active: #25bb84;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-page: #131312;
+        --bg-card: #1f1f1d;
+        --bg-card-subtle: #292926;
+        --border-subtle: #3a3934;
+        --border-bold: #5c5a52;
+        --ink: #f8f7f2;
+        --ink-muted: #bbb8ae;
+        --ink-subtle: #8a887e;
+        --green: #25bb84;
+        --green-bg: #103829;
+        --green-border: #1d6e4e;
+        --amber: #f5a021;
+        --amber-bg: #3d2806;
+        --amber-border: #754b0a;
+        --red: #f16666;
+        --red-bg: #3f1313;
+        --red-border: #782222;
+        --blue: #6aa8f8;
+        --blue-bg: #122844;
+        --blue-border: #1d4b84;
+        --phone-border: #3c3a34;
+        --phone-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+        --ring-track: rgba(255, 255, 255, 0.2);
+        --ring-active: #25bb84;
+      }
+    }
+
+    /* ==========================================================================
+       Base & Layout
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      font-size: 18px;
+      line-height: 1.5;
+      background-color: var(--bg-page);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 16px 64px;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Accessibility focus ring */
+    :focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 3px;
+    }
+
+    /* Top Navigation / Header */
+    header.app-header {
+      width: 100%;
+      max-width: 1080px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-title h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .badge-v2 {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      background-color: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ctrl-btn {
+      min-height: 44px;
+      padding: 8px 14px;
+      font-family: var(--font-family);
+      font-size: 15px;
+      font-weight: 700;
+      background-color: var(--bg-card);
+      color: var(--ink);
+      border: 1px solid var(--border-bold);
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .ctrl-btn:hover {
+      background-color: var(--bg-card-subtle);
+    }
+    .ctrl-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Top Comparison Banner */
+    .comparison-banner {
+      background-color: var(--bg-card);
+      border: 2px solid var(--border-bold);
+      border-radius: 14px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .comparison-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .comparison-text strong {
+      font-size: 16px;
+    }
+    .comparison-text span {
+      font-size: 14px;
+      color: var(--ink-muted);
+    }
+
+    /* Switch */
+    .switch-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 54px;
+      height: 32px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background-color: var(--border-bold);
+      border-radius: 34px;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+    }
+    .slider::before {
+      content: "";
+      position: absolute;
+      height: 24px;
+      width: 24px;
+      left: 4px;
+      bottom: 4px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+      transition: transform 0.25s ease;
+    }
+    input:checked + .slider {
+      background-color: var(--amber);
+    }
+    input:checked + .slider::before {
+      transform: translateX(22px);
+    }
+
+    /* ==========================================================================
+       Two-Column Main Content Container
+       ========================================================================== */
+    main.main-layout {
+      width: 100%;
+      max-width: 1080px;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      main.main-layout {
+        grid-template-columns: 1fr;
+        justify-items: center;
+      }
+    }
+
+    /* ==========================================================================
+       Phone Mockup (Left Column)
+       ========================================================================== */
+    .phone-container {
+      width: 100%;
+      max-width: 410px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .phone-mockup {
+      width: 100%;
+      background-color: var(--bg-card);
+      border: 3px solid var(--phone-border);
+      border-radius: 36px;
+      box-shadow: var(--phone-shadow);
+      padding: 16px 14px 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Phone top speaker & camera cutout */
+    .phone-notch {
+      width: 110px;
+      height: 18px;
+      background-color: var(--phone-border);
+      border-radius: 0 0 12px 12px;
+      margin: -16px auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .notch-speaker {
+      width: 40px;
+      height: 4px;
+      background-color: #555;
+      border-radius: 2px;
+    }
+    .notch-lens {
+      width: 7px;
+      height: 7px;
+      background-color: #2b3b55;
+      border-radius: 50%;
+    }
+
+    .phone-app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 0 4px;
+    }
+    .app-title-group h2 {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .app-title-group p {
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+    .sound-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Camera Viewport */
+    .camera-viewport {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      background-color: #000000;
+      border-radius: 22px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .camera-viewport video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* Selfie mirror */
+    }
+
+    /* Camera placeholder / fallback */
+    .camera-overlay-state {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      background-color: #121211;
+      color: #ffffff;
+      z-index: 5;
+    }
+    .camera-overlay-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+    .camera-overlay-state h3 {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .camera-overlay-state p {
+      font-size: 15px;
+      color: #ccc;
+      line-height: 1.4;
+      max-width: 280px;
+    }
+
+    /* SVG Overlay Guide (Oval & Countdown Ring) */
+    .face-guide-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .oval-track {
+      fill: none;
+      stroke-width: 4px;
+      stroke-dasharray: 6 6;
+      transition: stroke 0.25s ease;
+    }
+    .oval-track.state-neutral { stroke: rgba(255, 255, 255, 0.7); }
+    .oval-track.state-red     { stroke: #ff4d4d; }
+    .oval-track.state-amber   { stroke: #ffb833; }
+    .oval-track.state-green   { stroke: #19d494; stroke-dasharray: none; stroke-width: 5px; }
+
+    /* Circular / Elliptical Countdown Progress Ring */
+    .countdown-ring {
+      fill: none;
+      stroke: var(--ring-active);
+      stroke-width: 8px;
+      stroke-linecap: round;
+      stroke-dasharray: 980;
+      stroke-dashoffset: 980;
+      transition: stroke-dashoffset 0.1s linear;
+    }
+
+    /* Center Countdown Floating Badge */
+    .countdown-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(11, 104, 72, 0.9);
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      z-index: 15;
+    }
+    .countdown-badge.active {
+      display: flex;
+    }
+
+    /* Live Plain-Language Instruction Box (Requirement 5: 20px+ font, high contrast) */
+    .instruction-card {
+      width: 100%;
+      min-height: 84px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+      border: 2px solid transparent;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+    .instruction-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .instruction-icon svg {
+      width: 26px;
+      height: 26px;
+    }
+    .instruction-text {
+      flex: 1;
+    }
+    .instruction-text .headline {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .instruction-text .subline {
+      font-size: 15px;
+      font-weight: 400;
+      margin-top: 2px;
+      opacity: 0.9;
+    }
+
+    /* Instruction card states */
+    .instruction-card.state-red {
+      background-color: var(--red-bg);
+      border-color: var(--red-border);
+      color: var(--red);
+    }
+    .instruction-card.state-red .instruction-icon {
+      background-color: rgba(164, 40, 40, 0.15);
+    }
+
+    .instruction-card.state-amber {
+      background-color: var(--amber-bg);
+      border-color: var(--amber-border);
+      color: var(--amber);
+    }
+    .instruction-card.state-amber .instruction-icon {
+      background-color: rgba(142, 84, 0, 0.15);
+    }
+
+    .instruction-card.state-green {
+      background-color: var(--green-bg);
+      border-color: var(--green-border);
+      color: var(--green);
+    }
+    .instruction-card.state-green .instruction-icon {
+      background-color: rgba(11, 104, 72, 0.15);
+    }
+
+    .instruction-card.state-neutral {
+      background-color: var(--bg-card-subtle);
+      border-color: var(--border-bold);
+      color: var(--ink);
+    }
+    .instruction-card.state-neutral .instruction-icon {
+      background-color: var(--border-subtle);
+    }
+
+    /* Buttons inside the phone */
+    .phone-actions {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Help Me Button (Requirement 2: >= 64px tall, prominent) */
+    .btn-help-me {
+      width: 100%;
+      min-height: 64px;
+      padding: 14px 20px;
+      background-color: var(--blue-bg);
+      color: var(--blue);
+      border: 2px solid var(--blue-border);
+      border-radius: 16px;
+      font-family: var(--font-family);
+      font-size: 19px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: transform 0.1s ease, background 0.15s ease;
+    }
+    .btn-help-me:hover {
+      background-color: #dbeaff;
+    }
+    .btn-help-me:active {
+      transform: scale(0.98);
+    }
+
+    /* Manual Shutter Button for "Today's Version" mode */
+    .btn-shutter {
+      width: 100%;
+      min-height: 64px;
+      background-color: var(--red);
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      font-family: var(--font-family);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none; /* Shown only when old version toggled */
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(164, 40, 40, 0.3);
+    }
+    .btn-shutter:hover {
+      background-color: #8c1e1e;
+    }
+
+    /* Success / Rejection Result Overlay Screen (within the phone) */
+    .result-screen {
+      position: absolute;
+      inset: 0;
+      background-color: var(--bg-card);
+      border-radius: 34px;
+      padding: 28px 20px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 50;
+      animation: fadeIn 0.3s ease;
+    }
+    .result-screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-icon-large {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .result-icon-large.success {
+      background-color: var(--green-bg);
+      color: var(--green);
+    }
+    .result-icon-large.failure {
+      background-color: var(--red-bg);
+      color: var(--red);
+    }
+
+    .result-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .result-desc {
+      font-size: 17px;
+      color: var(--ink-muted);
+      line-height: 1.45;
+      margin-bottom: 18px;
+      max-width: 320px;
+    }
+
+    /* Captured photo thumbnail preview */
+    .result-preview-box {
+      width: 140px;
+      height: 140px;
+      border-radius: 14px;
+      border: 3px solid var(--green-border);
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+      background-color: #000;
+    }
+    .result-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    /* Quality values pill list */
+    .metrics-summary {
+      width: 100%;
+      background-color: var(--bg-card-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .metric-item .lbl {
+      font-size: 12px;
+      color: var(--ink-subtle);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .metric-item .val {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .btn-primary-large {
+      width: 100%;
+      min-height: 64px;
+      background-color: var(--green);
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      font-family: var(--font-family);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.15s ease;
+    }
+    .btn-primary-large:hover {
+      background-color: #085339;
+    }
+
+    /* ==========================================================================
+       Right Column: Side Panel (Context, Demo Controls, Checklist, Log)
+       ========================================================================== */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .panel-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .panel-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      cursor: pointer;
+    }
+    .panel-card-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Live Quality Checks Checklist (Requirement 9) */
+    .checks-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background-color: var(--bg-card-subtle);
+      border-radius: 10px;
+      font-size: 14.5px;
+    }
+    .check-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .check-name {
+      font-weight: 700;
+    }
+    .check-metric {
+      font-size: 12.5px;
+      color: var(--ink-subtle);
+    }
+    .check-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .check-status-badge.pass {
+      background-color: var(--green-bg);
+      color: var(--green);
+    }
+    .check-status-badge.fail {
+      background-color: var(--red-bg);
+      color: var(--red);
+    }
+    .check-status-badge.warn {
+      background-color: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    /* Force Result Dropdown (Requirement 9) */
+    .force-result-group {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .force-result-group label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink-muted);
+    }
+    .force-select {
+      width: 100%;
+      min-height: 48px;
+      padding: 8px 12px;
+      font-family: var(--font-family);
+      font-size: 15px;
+      font-weight: 700;
+      background-color: var(--bg-card-subtle);
+      border: 1px solid var(--border-bold);
+      border-radius: 10px;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .forced-warning-note {
+      font-size: 13px;
+      color: var(--amber);
+      background-color: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-top: 8px;
+      display: none;
+    }
+    .forced-warning-note.active {
+      display: block;
+    }
+
+    /* Attempt History Log Table (Requirement 10) */
+    .attempt-log-wrap {
+      max-height: 220px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+    .log-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    .log-table th {
+      text-align: left;
+      padding: 6px 8px;
+      border-bottom: 2px solid var(--border-subtle);
+      color: var(--ink-subtle);
+      font-weight: 700;
+    }
+    .log-table td {
+      padding: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+    }
+    .log-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+    .log-badge.success { background: var(--green-bg); color: var(--green); }
+    .log-badge.fail { background: var(--red-bg); color: var(--red); }
+    .log-badge.old { background: #e0e0e0; color: #444; }
+
+    .clear-log-btn {
+      margin-top: 10px;
+      font-family: var(--font-family);
+      font-size: 13px;
+      font-weight: 700;
+      background: none;
+      border: 1px solid var(--border-bold);
+      border-radius: 6px;
+      padding: 4px 10px;
+      color: var(--ink-muted);
+      cursor: pointer;
+    }
+    .clear-log-btn:hover {
+      background-color: var(--bg-card-subtle);
+    }
+
+    /* Empathy Accordion (Persona Viswan) */
+    .empathy-accordion {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .empathy-quadrant {
+      background: var(--bg-card-subtle);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .empathy-quadrant strong {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-subtle);
+      margin-bottom: 4px;
+    }
+    .empathy-quadrant p {
+      font-size: 15px;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+    .empathy-quadrant.say p {
+      font-style: italic;
+    }
+
+    /* ==========================================================================
+       "Help Me" Modal Overlay (Requirement 2)
+       ========================================================================== */
+    .help-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .help-modal-backdrop.open {
+      display: flex;
+    }
+
+    .help-modal {
+      width: 100%;
+      max-width: 440px;
+      background-color: var(--bg-card);
+      border-radius: 28px;
+      padding: 28px 24px;
+      border: 2px solid var(--border-bold);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .help-modal-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background-color: var(--blue-bg);
+      color: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .help-modal-icon svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .help-modal h3 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--ink);
+    }
+
+    .help-modal .help-detail {
+      font-size: 19px;
+      line-height: 1.5;
+      color: var(--ink-muted);
+      margin-bottom: 24px;
+    }
+
+    .btn-modal-close {
+      width: 100%;
+      min-height: 64px;
+      background-color: var(--blue);
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      font-family: var(--font-family);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-modal-close:hover {
+      background-color: #0f4486;
+    }
+
+    /* Screen reader announcement region */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Footer */
+    footer.app-footer {
+      width: 100%;
+      max-width: 1080px;
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-subtle);
+      text-align: center;
+      font-size: 14px;
+      color: var(--ink-muted);
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Navigation -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <div class="nav-logo">Jeevan <span>Pramaan</span></div>
-      <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('open')">
-        <span></span><span></span><span></span>
-      </button>
-      <ul class="nav-links">
-        <li><a href="index.html" class="active">Home</a></li>
-        <li><a href="problem.html">Problem</a></li>
-        <li><a href="research.html">Research</a></li>
-        <li><a href="ideation.html">Ideation</a></li>
-        <li><a href="prototype.html">Prototype</a></li>
-      </ul>
+  <!-- Screen reader live region for accessibility (Requirement 5) -->
+  <div id="srLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand-title">
+        <h1>Jeevan Pramaan</h1>
+        <span class="badge-v2">Version 2.0 · Smart Auto-Capture</span>
+      </div>
+      <div class="header-controls">
+        <button id="themeToggleBtn" class="ctrl-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+          <span id="themeIcon">☀️</span> <span id="themeLabel">Theme</span>
+        </button>
+        <button id="voiceToggleBtn" class="ctrl-btn" title="Toggle Spoken Voice Guidance" aria-label="Toggle Voice Guidance">
+          <span id="voiceIcon">🔊</span> <span id="voiceLabel">Voice: ON</span>
+        </button>
+      </div>
     </div>
-  </nav>
 
-  <!-- Hero -->
-  <section class="hero">
-    <span class="hero-badge">Experiment 3 · Ideation &amp; Prototyping</span>
-    <h1>Jeevan Pramaan: Redesigning Error Communication for Elderly Users</h1>
-    <p class="subtitle">A Human-Centred Design Process project exploring how plain-language error messages can empower elderly pensioners to complete digital life certificate verification independently.</p>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
-      <a href="prototype.html" class="btn btn-primary">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        View Prototype
-      </a>
-      <a href="problem.html" class="btn btn-outline">Learn More</a>
+    <!-- Comparison Toggle Row (Requirement 8) -->
+    <div class="comparison-banner">
+      <div class="comparison-text">
+        <strong>Compare with today's version (Old Government App)</strong>
+        <span>Shows the generic "Verification Failed" screen with no guidance to see the contrast.</span>
+      </div>
+      <div class="switch-wrap">
+        <label class="switch" for="oldVersionToggle">
+          <input type="checkbox" id="oldVersionToggle" aria-label="Toggle old government app version">
+          <span class="slider"></span>
+        </label>
+      </div>
     </div>
-  </section>
+  </header>
 
-  <!-- Overview Section -->
-  <main class="main" style="padding-top:0;">
+  <!-- Main 2-Column Layout -->
+  <main class="main-layout">
 
-    <section class="section">
-      <span class="section-label">The Challenge</span>
-      <h2>What is the problem?</h2>
-      <p>India's Jeevan Pramaan system enables pensioners to digitally prove they are alive to keep receiving their pension. But when photo verification fails, the system shows only a cryptic <strong>"Verification Failed — Please try again"</strong> message. For elderly users like 82-year-old Viswan, who have limited digital literacy, this is deeply confusing and anxiety-inducing.</p>
-      <p>They don't know if the lighting was bad, their face wasn't positioned correctly, or something else went wrong. Without guidance, they retry the same mistake or give up entirely — forced to visit a pension office in person, which defeats the purpose of a digital system.</p>
-    </section>
-
-    <!-- Feature Cards -->
-    <section class="section">
-      <span class="section-label">Our Approach</span>
-      <h2>A human-centred solution</h2>
-      <div class="card-grid">
-        <div class="card">
-          <div class="feature-icon fi-red">🔍</div>
-          <h3>Understand the User</h3>
-          <p>Through empathy mapping and persona building, we identified the core frustrations elderly pensioners face during digital verification — confusion, anxiety, and helplessness.</p>
+    <!-- Left Column: The Phone Simulator -->
+    <div class="phone-container">
+      <div class="phone-mockup" id="phoneMockup">
+        <!-- Phone notch speaker -->
+        <div class="phone-notch" aria-hidden="true">
+          <div class="notch-speaker"></div>
+          <div class="notch-lens"></div>
         </div>
-        <div class="card">
-          <div class="feature-icon fi-amber">💡</div>
-          <h3>Ideate Solutions</h3>
-          <p>We brainstormed five potential approaches and evaluated them on feasibility, impact, user-friendliness, and implementation cost using a structured selection matrix.</p>
+
+        <div class="phone-app-header">
+          <div class="app-title-group">
+            <h2>Digital Life Certificate</h2>
+            <p>Step 2: Face Authentication</p>
+          </div>
+          <button class="sound-badge" id="quickVoiceBtn" title="Mute or Unmute Voice Guidance">
+            <span id="quickVoiceIcon">🔊</span>
+          </button>
         </div>
-        <div class="card">
-          <div class="feature-icon fi-green">✅</div>
-          <h3>Prototype &amp; Test</h3>
-          <p>Our selected idea — plain-language rejection reasons with specific fix instructions — was prototyped as a working interactive demo with real camera integration.</p>
+
+        <!-- Camera Viewport with Live Feed & Guides -->
+        <div class="camera-viewport" id="cameraViewport" aria-label="Camera feed viewport">
+          <video id="videoFeed" autoplay playsinline muted></video>
+          
+          <!-- Hidden canvas for pixel analysis and final still capture -->
+          <canvas id="analysisCanvas" style="display:none;"></canvas>
+          <canvas id="captureCanvas" style="display:none;"></canvas>
+
+          <!-- SVG Face Alignment Guide & Countdown Ring -->
+          <svg class="face-guide-svg" viewBox="0 0 380 380" id="guideSvg" aria-hidden="true">
+            <!-- Background track for the face oval (Rx: 95, Ry: 125, Center: 190, 170) -->
+            <ellipse cx="190" cy="170" rx="95" ry="125" class="oval-track state-neutral" id="ovalTrack" />
+            <!-- Active 1.5s countdown ring overlay (Perimeter approx 694px) -->
+            <ellipse cx="190" cy="170" rx="95" ry="125" class="countdown-ring" id="countdownRing"
+                     stroke-dasharray="700" stroke-dashoffset="700" />
+          </svg>
+
+          <!-- Floating Countdown Badge -->
+          <div class="countdown-badge" id="countdownBadge">
+            <span id="countdownSecs">1.5s</span>
+          </div>
+
+          <!-- Camera Loading / Permission Fallback Overlay -->
+          <div class="camera-overlay-state" id="cameraPrompt">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            <h3 id="camPromptTitle">Starting Camera…</h3>
+            <p id="camPromptDesc">Please allow camera access in your browser to verify your face.</p>
+          </div>
+        </div>
+
+        <!-- Plain-Language Instruction Box (Requirement 5) -->
+        <div class="instruction-card state-neutral" id="instructionCard" role="status">
+          <div class="instruction-icon" id="instructionIcon">
+            <!-- Default face search icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+          </div>
+          <div class="instruction-text">
+            <div class="headline" id="instructionHeadline">Looking for your face…</div>
+            <div class="subline" id="instructionSubline">Hold your phone steady in front of you.</div>
+          </div>
+        </div>
+
+        <!-- Phone Action Area -->
+        <div class="phone-actions">
+          <!-- "Help Me" Button (Requirement 2: >= 64px tall, replaces manual shutter) -->
+          <button class="btn-help-me" id="btnHelpMe">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>Help me — What is wrong?</span>
+          </button>
+
+          <!-- Manual Shutter Button (Visible ONLY in "Today's Version" mode) -->
+          <button class="btn-shutter" id="btnShutter">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>Take Photo (Old Version)</span>
+          </button>
+        </div>
+
+        <!-- Result Screen (Success / Failure / Old Version) -->
+        <div class="result-screen" id="resultScreen">
+          <div class="result-icon-large success" id="resIconBox">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" id="resIconSvg">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+
+          <h3 class="result-title" id="resTitle">Certificate Submitted!</h3>
+          <p class="result-desc" id="resDesc">Your life certificate has been authenticated and registered successfully.</p>
+
+          <!-- Captured Photo Thumbnail -->
+          <div class="result-preview-box" id="resPreviewBox">
+            <img id="resPreviewImg" alt="Captured verification still">
+          </div>
+
+          <!-- Measured Values Summary (Requirement 7) -->
+          <div class="metrics-summary" id="resMetricsSummary">
+            <div class="metric-item">
+              <span class="lbl">Lighting</span>
+              <span class="val" id="resMetricBrightness">58%</span>
+            </div>
+            <div class="metric-item">
+              <span class="lbl">Sharpness</span>
+              <span class="val" id="resMetricSharpness">Clear</span>
+            </div>
+            <div class="metric-item">
+              <span class="lbl">Stability</span>
+              <span class="val" id="resMetricStability">Steady</span>
+            </div>
+          </div>
+
+          <button class="btn-primary-large" id="btnResultAction">
+            <span>Done / Start Over</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Column: Context, Demo Controls, Checklist & Attempt Log -->
+    <div class="side-panel">
+
+      <!-- Demo Controls Card (Requirement 9) -->
+      <div class="panel-card">
+        <div class="panel-card-header">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            Teacher & Demo Controls
+          </h3>
+          <div class="switch-wrap">
+            <label class="switch" for="checklistToggle" title="Show Live Quality Checks Checklist">
+              <input type="checkbox" id="checklistToggle" checked aria-label="Toggle Quality Checks Checklist">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Force Result Dropdown (Requirement 9) -->
+        <div class="force-result-group">
+          <label for="forceSelect">Force condition for testing (No camera required):</label>
+          <select id="forceSelect" class="force-select">
+            <option value="none">Normal (Use Live Camera Feed)</option>
+            <option value="good">Force: All Checks Pass (Simulated)</option>
+            <option value="dark">Force: Photo Too Dark</option>
+            <option value="glare">Force: Too Much Glare</option>
+            <option value="blur">Force: Photo is Blurry</option>
+            <option value="shaky">Force: Shaky / Camera Moving</option>
+            <option value="noface">Force: No Face Seen</option>
+            <option value="toofar">Force: Too Far Away</option>
+            <option value="tooclose">Force: Too Close to Camera</option>
+            <option value="offcentre">Force: Off-centre (Move Left)</option>
+            <option value="headturned">Force: Head Turned</option>
+            <option value="eyesclosed">Force: Eyes Closed</option>
+          </select>
+          <div class="forced-warning-note" id="forcedWarningNote">
+            ⚠️ <strong>Simulated Demo Mode:</strong> For classroom testing only. Forced modes never trigger an actual certificate submission.
+          </div>
+        </div>
+
+        <!-- Live Quality Checks Checklist (Requirement 9) -->
+        <div class="checks-grid" id="checksGrid">
+          <div class="check-row" id="row-face-present">
+            <div class="check-info">
+              <span class="check-name">1. Face Present</span>
+              <span class="check-metric" id="val-face-present">Waiting for camera…</span>
+            </div>
+            <span class="check-status-badge fail" id="badge-face-present">FAIL</span>
+          </div>
+
+          <div class="check-row" id="row-face-size">
+            <div class="check-info">
+              <span class="check-name">2. Face Size (30% – 60% height)</span>
+              <span class="check-metric" id="val-face-size">--</span>
+            </div>
+            <span class="check-status-badge fail" id="badge-face-size">FAIL</span>
+          </div>
+
+          <div class="check-row" id="row-face-position">
+            <div class="check-info">
+              <span class="check-name">3. Face Position (Centered in Oval)</span>
+              <span class="check-metric" id="val-face-position">--</span>
+            </div>
+            <span class="check-status-badge fail" id="badge-face-position">FAIL</span>
+          </div>
+
+          <div class="check-row" id="row-face-straight">
+            <div class="check-info">
+              <span class="check-name">4. Face Straight (Level & Facing)</span>
+              <span class="check-metric" id="val-face-straight">--</span>
+            </div>
+            <span class="check-status-badge fail" id="badge-face-straight">FAIL</span>
+          </div>
+
+          <div class="check-row" id="row-eyes-open">
+            <div class="check-info">
+              <span class="check-name">5. Eyes Open</span>
+              <span class="check-metric" id="val-eyes-open">--</span>
+            </div>
+            <span class="check-status-badge fail" id="badge-eyes-open">FAIL</span>
+          </div>
+
+          <div class="check-row" id="row-brightness">
+            <div class="check-info">
+              <span class="check-name">6. Face Brightness (28% – 85%)</span>
+              <span class="check-metric" id="val-brightness">--</span>
+            </div>
+            <span class="check-status-badge fail" id="badge-brightness">FAIL</span>
+          </div>
+
+          <div class="check-row" id="row-glare">
+            <div class="check-info">
+              <span class="check-name">7. No Glare (&lt; 8% pixels blown)</span>
+              <span class="check-metric" id="val-glare">--</span>
+            </div>
+            <span class="check-status-badge fail" id="badge-glare">FAIL</span>
+          </div>
+
+          <div class="check-row" id="row-sharpness">
+            <div class="check-info">
+              <span class="check-name">8. Sharpness (Laplacian score &gt; 45)</span>
+              <span class="check-metric" id="val-sharpness">--</span>
+            </div>
+            <span class="check-status-badge fail" id="badge-sharpness">FAIL</span>
+          </div>
+
+          <div class="check-row" id="row-stability">
+            <div class="check-info">
+              <span class="check-name">9. Stability / Shaky Check (Hold Still)</span>
+              <span class="check-metric" id="val-stability">--</span>
+            </div>
+            <span class="check-status-badge fail" id="badge-stability">FAIL</span>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Before / After -->
-    <section class="section">
-      <span class="section-label">Before &amp; After</span>
-      <h2>The difference clear error messages make</h2>
-      <div class="comparison">
-        <div class="comparison-card before">
-          <h4>❌ Current System</h4>
-          <p style="font-size:1.1rem;font-weight:600;color:var(--red);margin-bottom:8px;">Verification Failed</p>
-          <p style="font-size:0.92rem;">Please try again.</p>
-          <p style="margin-top:12px;font-size:0.85rem;color:var(--muted);">No explanation. No guidance. The user has no idea what went wrong or how to fix it.</p>
+      <!-- Attempt History Log Card (Requirement 10) -->
+      <div class="panel-card">
+        <div class="panel-card-header">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Attempt History Log
+          </h3>
+          <button class="clear-log-btn" id="btnClearLog">Clear Log</button>
         </div>
-        <div class="comparison-card after">
-          <h4>✅ Our Redesign</h4>
-          <p style="font-size:1.1rem;font-weight:600;color:var(--green);margin-bottom:8px;">Photo too dark</p>
-          <p style="font-size:0.92rem;">Move to a brighter spot, like near a window, and try again.</p>
-          <p style="margin-top:12px;font-size:0.85rem;color:var(--muted);">Specific reason + actionable instruction. The user knows exactly what to change.</p>
+        <p style="font-size:13.5px; color:var(--ink-muted); margin-bottom:8px;">
+          Records every submission attempt with timestamp and outcome to measure usability improvements.
+        </p>
+        <div class="attempt-log-wrap">
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Time</th>
+                <th>Outcome</th>
+                <th>Reason / Metrics</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody">
+              <tr>
+                <td colspan="4" style="text-align:center; color:var(--ink-subtle); padding:16px;">
+                  No attempts recorded yet.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-    </section>
 
-    <!-- Stats -->
-    <section class="section">
-      <span class="section-label">Context</span>
-      <h2>Why this matters</h2>
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-number">149M+</div>
-          <div class="stat-label">Indians aged 60+ (Census 2021 est.)</div>
+      <!-- Viswan's Experience Context Card (Human-Centred Design) -->
+      <div class="panel-card">
+        <div class="panel-card-header" id="viswanHeader">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Why This Matters — Viswan (82)
+          </h3>
+          <span id="viswanChev" style="font-size:14px; color:var(--ink-muted);">▾</span>
         </div>
-        <div class="stat-card">
-          <div class="stat-number">68M+</div>
-          <div class="stat-label">Government pensioners relying on life certificates</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">~25%</div>
-          <div class="stat-label">Elderly internet users in India (2023 estimates)</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">1 idea</div>
-          <div class="stat-label">That can make a real difference</div>
+        <div class="empathy-accordion" id="viswanBody">
+          <div class="empathy-quadrant say">
+            <strong>Says</strong>
+            <p>"The photo looks fine to me — why does it keep saying 'Verification Failed'?"</p>
+          </div>
+          <div class="empathy-quadrant">
+            <strong>Thinks</strong>
+            <p>Assumes the phone or government system is broken, or that his pension will be cancelled because he did something wrong.</p>
+          </div>
+          <div class="empathy-quadrant">
+            <strong>Feels</strong>
+            <p>Deep anxiety about losing his monthly livelihood, accompanied by helplessness and hand tremors when nervous.</p>
+          </div>
+          <div class="empathy-quadrant">
+            <strong>Does</strong>
+            <p>Previously had to wait hours for a relative to visit or travel 12 km by bus to the treasury office. With Version 2 auto-capture, he simply follows one instruction at a time until the green ring finishes.</p>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- CTA -->
-    <section style="text-align:center;padding:40px 0;">
-      <h2>Try the prototype yourself</h2>
-      <p style="color:var(--muted);margin-bottom:24px;">Experience the redesigned error flow with a live camera demo.</p>
-      <a href="prototype.html" class="btn btn-primary">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        Launch Prototype
-      </a>
-    </section>
+    </div>
 
   </main>
 
+  <!-- "Help Me" Modal Overlay (Requirement 2) -->
+  <div class="help-modal-backdrop" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="help-modal">
+      <div class="help-modal-icon" id="helpModalIcon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h3 id="helpTitle">Here is what to do</h3>
+      <p class="help-detail" id="helpDetailText">
+        Please look directly into the camera so we can see both eyes clearly.
+      </p>
+      <button class="btn-modal-close" id="btnModalClose">
+        <span>Got It — Back to Camera</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Footer -->
-  <footer class="footer">
-    <strong>Human-Centred Design Process</strong> · Faculty of Engineering and Technology<br>
-    Experiment 3: Ideation and Prototyping
+  <footer class="app-footer">
+    <p>
+      <strong>Jeevan Pramaan HCD Project</strong> · Experiment 3: Ideation &amp; Prototyping · Faculty of Engineering and Technology
+    </p>
+    <p style="margin-top:4px; font-size:12.5px; opacity:0.8;">
+      Demonstrating Idea #1: Plain-Language Feedback with Smart Auto-Capture. Client-side prototype. No biometric data is stored or transmitted.
+    </p>
   </footer>
+
+  <!-- ==========================================================================
+       Version 2 JavaScript Engine (MediaPipe Tasks Vision + Strict Quality Checks)
+       ========================================================================== -->
+  <script type="module">
+    /* ==========================================================================
+       CONFIG Object — Tunable Thresholds for Classroom & Field Testing
+       ========================================================================== */
+    const CONFIG = {
+      // --- Timing & Transitions ---
+      COUNTDOWN_DURATION_MS: 1500,     // Continuous duration (1.5s) all checks must hold before auto-capture
+      CHECK_INTERVAL_MS: 100,          // Frame evaluation rate (~10 times per second)
+      MIN_MESSAGE_DISPLAY_MS: 700,     // Anti-flicker: message stays visible for at least 700ms before changing
+      VOICE_REPEAT_COOLDOWN_MS: 4000,  // Cooldown before identical voice instruction can repeat (4s)
+
+      // --- Face Sizing (relative to frame height) ---
+      FACE_SIZE_MIN: 0.28,             // Minimum face box height / frame height (28%) -> below this: "Move a little closer"
+      FACE_SIZE_MAX: 0.65,             // Maximum face box height / frame height (65%) -> above this: "Move a little farther back"
+
+      // --- Face Centering (relative coordinates 0.0 - 1.0) ---
+      OVAL_CENTER_X: 0.50,             // Target horizontal center (50%)
+      OVAL_CENTER_Y: 0.45,             // Target vertical center (45% for natural face placement)
+      CENTER_TOLERANCE_X: 0.14,        // Allowed horizontal deviation before "Move left/right"
+      CENTER_TOLERANCE_Y: 0.15,        // Allowed vertical deviation before "Move up/down"
+
+      // --- Head Pose & Angles ---
+      MAX_HEAD_ROLL_DEG: 11.0,         // Head tilt tolerance in degrees (eyes must be horizontal)
+      MAX_HEAD_YAW_OFFSET: 0.14,       // Head turn tolerance (looking left vs right relative to nose)
+      MAX_HEAD_PITCH_OFFSET: 0.18,     // Head nod tolerance (looking too far up or down)
+
+      // --- Eye Openness ---
+      MIN_EYE_ASPECT_RATIO: 0.16,      // Minimum Eye Aspect Ratio (EAR); below this: "Please open your eyes"
+
+      // --- Lighting & Glare (Evaluated Strictly on Face Region) ---
+      MIN_FACE_BRIGHTNESS: 65,         // Minimum average luminance (0-255); below this: "Photo too dark. Move near a window."
+      MAX_FACE_BRIGHTNESS: 215,        // Maximum average luminance (0-255); above this: "Too bright. Move away from bright light."
+      GLARE_PIXEL_CUTOFF: 245,         // Pixel luminance threshold considered blown-out glare
+      MAX_GLARE_PERCENT: 8.0,          // Maximum allowed percentage of face pixels blown out (8%)
+
+      // --- Sharpness / Blur Detection (Laplacian Variance on Face Region) ---
+      MIN_SHARPNESS_LAPLACIAN: 45.0,   // Laplacian variance threshold; below this: "Photo is blurry. Wipe the lens or hold steady."
+
+      // --- Stability / Shaky Check (Camera Movement Detection) ---
+      STABILITY_FRAME_HISTORY: 9,      // Number of recent frames tracked for motion analysis
+      MAX_FACE_DRIFT_NORM: 0.038,      // Maximum allowed displacement of face center across window (~3.8% of frame)
+      MAX_FRAME_DIFF_MEAN: 14.5        // Maximum mean pixel difference between consecutive frames; above this: "Hold the phone still."
+    };
+
+    // Make CONFIG accessible on window for easy in-class console tuning
+    window.CONFIG = CONFIG;
+
+    /* ==========================================================================
+       State Management
+       ========================================================================== */
+    // States: 'idle' | 'starting' | 'guiding' | 'counting_down' | 'capturing' | 'verifying' | 'rejected' | 'success'
+    let appState = 'idle';
+    let isOldVersionMode = false;
+    let voiceGuidanceEnabled = true;
+    let forcedCondition = 'none';
+
+    let videoStream = null;
+    let faceLandmarker = null;
+    let detectorReady = false;
+    let detectorType = 'none'; // 'mediapipe' | 'native' | 'none'
+
+    // Countdown tracking
+    let countdownStartTime = null;
+    let countdownAnimationFrame = null;
+
+    // Anti-flicker message timer
+    let currentMessageKey = null;
+    let messageDisplayTimestamp = 0;
+
+    // Voice guidance cooldown tracking
+    let lastSpokenText = '';
+    let lastSpokenTimestamp = 0;
+
+    // Stability tracking history buffer
+    const motionHistory = [];
+    let previousFaceGrayscale = null;
+
+    // Attempt counter
+    let attemptCounter = 0;
+
+    // DOM Elements
+    const videoFeed = document.getElementById('videoFeed');
+    const analysisCanvas = document.getElementById('analysisCanvas');
+    const captureCanvas = document.getElementById('captureCanvas');
+    const analysisCtx = analysisCanvas.getContext('2d', { willReadFrequently: true });
+    const captureCtx = captureCanvas.getContext('2d', { willReadFrequently: true });
+
+    const ovalTrack = document.getElementById('ovalTrack');
+    const countdownRing = document.getElementById('countdownRing');
+    const countdownBadge = document.getElementById('countdownBadge');
+    const countdownSecs = document.getElementById('countdownSecs');
+    const cameraPrompt = document.getElementById('cameraPrompt');
+    const camPromptTitle = document.getElementById('camPromptTitle');
+    const camPromptDesc = document.getElementById('camPromptDesc');
+
+    const instructionCard = document.getElementById('instructionCard');
+    const instructionIcon = document.getElementById('instructionIcon');
+    const instructionHeadline = document.getElementById('instructionHeadline');
+    const instructionSubline = document.getElementById('instructionSubline');
+    const srLiveRegion = document.getElementById('srLiveRegion');
+
+    const btnHelpMe = document.getElementById('btnHelpMe');
+    const btnShutter = document.getElementById('btnShutter');
+    const helpModal = document.getElementById('helpModal');
+    const helpTitle = document.getElementById('helpTitle');
+    const helpDetailText = document.getElementById('helpDetailText');
+    const btnModalClose = document.getElementById('btnModalClose');
+
+    const resultScreen = document.getElementById('resultScreen');
+    const resIconBox = document.getElementById('resIconBox');
+    const resIconSvg = document.getElementById('resIconSvg');
+    const resTitle = document.getElementById('resTitle');
+    const resDesc = document.getElementById('resDesc');
+    const resPreviewImg = document.getElementById('resPreviewImg');
+    const resMetricsSummary = document.getElementById('resMetricsSummary');
+    const resMetricBrightness = document.getElementById('resMetricBrightness');
+    const resMetricSharpness = document.getElementById('resMetricSharpness');
+    const resMetricStability = document.getElementById('resMetricStability');
+    const btnResultAction = document.getElementById('btnResultAction');
+
+    const oldVersionToggle = document.getElementById('oldVersionToggle');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const voiceToggleBtn = document.getElementById('voiceToggleBtn');
+    const quickVoiceBtn = document.getElementById('quickVoiceBtn');
+    const forceSelect = document.getElementById('forceSelect');
+    const forcedWarningNote = document.getElementById('forcedWarningNote');
+    const checklistToggle = document.getElementById('checklistToggle');
+    const checksGrid = document.getElementById('checksGrid');
+    const logTableBody = document.getElementById('logTableBody');
+    const btnClearLog = document.getElementById('btnClearLog');
+
+    /* ==========================================================================
+       SVG Icons Helper Library
+       ========================================================================== */
+    const ICONS = {
+      faceSearch: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
+      faceMulti: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+      moveCloser: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`,
+      moveBack: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`,
+      arrowLeft: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`,
+      arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+      arrowUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
+      arrowDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`,
+      tiltHead: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+      sunDark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M4.93 19.07l1.41-1.41"/><path d="M17.66 6.34l1.41-1.41"/></svg>`,
+      sunGlare: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>`,
+      eyesClosed: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><line x1="3" y1="3" x2="21" y2="21"/></svg>`,
+      blurry: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+      shaky: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>`,
+      success: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+      failure: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+    };
+
+    /* ==========================================================================
+       Voice Guidance (Requirement 6)
+       ========================================================================== */
+    function speakGuidance(text, forceImmediate = false) {
+      if (!voiceGuidanceEnabled || !('speechSynthesis' in window)) return;
+      const now = performance.now();
+      if (!forceImmediate && text === lastSpokenText && (now - lastSpokenTimestamp < CONFIG.VOICE_REPEAT_COOLDOWN_MS)) {
+        return;
+      }
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.92; // Slightly measured, respectful pace for elderly ears
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+        lastSpokenText = text;
+        lastSpokenTimestamp = now;
+      } catch (err) {
+        console.warn('Speech synthesis error:', err);
+      }
+    }
+
+    /* ==========================================================================
+       Detection Module Initialization (MediaPipe Tasks Vision with Fallbacks)
+       ========================================================================== */
+    async function initFaceDetector() {
+      camPromptTitle.textContent = "Loading face detection…";
+      camPromptDesc.textContent = "Connecting to browser vision model (MediaPipe Tasks Vision)…";
+
+      // 1. Try MediaPipe Tasks Vision from jsDelivr pinned version
+      try {
+        const { FilesetResolver, FaceLandmarker } = await import(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs"
+        );
+        const filesetResolver = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+        );
+
+        // Try GPU delegate first, fallback to CPU if needed
+        try {
+          faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+            baseOptions: {
+              modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+              delegate: "GPU"
+            },
+            runningMode: "VIDEO",
+            numFaces: 2,
+            minFaceDetectionConfidence: 0.45,
+            minFacePresenceConfidence: 0.45,
+            minTrackingConfidence: 0.45,
+            outputFaceBlendshapes: true
+          });
+        } catch (gpuErr) {
+          console.warn("GPU delegate unavailable, attempting CPU delegate:", gpuErr);
+          faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+            baseOptions: {
+              modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+              delegate: "CPU"
+            },
+            runningMode: "VIDEO",
+            numFaces: 2,
+            minFaceDetectionConfidence: 0.45,
+            minFacePresenceConfidence: 0.45,
+            minTrackingConfidence: 0.45,
+            outputFaceBlendshapes: true
+          });
+        }
+
+        detectorReady = true;
+        detectorType = 'mediapipe';
+        console.log("MediaPipe FaceLandmarker loaded successfully.");
+        return true;
+      } catch (mpErr) {
+        console.warn("MediaPipe Tasks Vision failed to load:", mpErr);
+
+        // 2. Fallback to Browser Native FaceDetector API (Chromium experimental)
+        if ('FaceDetector' in window) {
+          try {
+            window.nativeFaceDetector = new window.FaceDetector({ fastMode: true, maxDetectedFaces: 2 });
+            detectorReady = true;
+            detectorType = 'native';
+            console.log("Fallback to native browser FaceDetector API.");
+            return true;
+          } catch (natErr) {
+            console.warn("Native FaceDetector initialization failed:", natErr);
+          }
+        }
+
+        // 3. Neither detector available
+        detectorReady = false;
+        detectorType = 'none';
+        camPromptTitle.textContent = "Face Detection Unavailable";
+        camPromptDesc.textContent = "Could not load face detection models. Please check your internet connection or use the Demo Controls to test.";
+        return false;
+      }
+    }
+
+    /* ==========================================================================
+       Camera Lifecycle Management (Requirement 11)
+       ========================================================================== */
+    async function startCamera() {
+      if (videoStream) stopCamera();
+
+      camPromptTitle.textContent = "Opening Camera…";
+      camPromptDesc.textContent = "Hold phone steady in front of you.";
+      cameraPrompt.style.display = "flex";
+
+      const constraints = {
+        video: {
+          facingMode: "user",
+          width: { ideal: 640 },
+          height: { ideal: 480 }
+        },
+        audio: false
+      };
+
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoFeed.srcObject = videoStream;
+
+        await new Promise((resolve) => {
+          videoFeed.onloadedmetadata = () => {
+            videoFeed.play();
+            resolve();
+          };
+        });
+
+        // Set up analysis canvas match video dimensions
+        analysisCanvas.width = videoFeed.videoWidth || 640;
+        analysisCanvas.height = videoFeed.videoHeight || 480;
+        captureCanvas.width = videoFeed.videoWidth || 640;
+        captureCanvas.height = videoFeed.videoHeight || 480;
+
+        cameraPrompt.style.display = "none";
+        appState = 'guiding';
+        updateUI();
+        startProcessingLoop();
+
+      } catch (err) {
+        console.error("Camera access error:", err);
+        cameraPrompt.style.display = "flex";
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          camPromptTitle.textContent = "Camera Permission Denied";
+          camPromptDesc.textContent = "Please tap the lock or camera icon in your browser address bar and grant camera permission.";
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          camPromptTitle.textContent = "No Camera Detected";
+          camPromptDesc.textContent = "Please connect a camera or test with the Demo Controls dropdown.";
+        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+          camPromptTitle.textContent = "Camera Already in Use";
+          camPromptDesc.textContent = "Another application may be using the camera. Please close other apps and reload.";
+        } else {
+          camPromptTitle.textContent = "Camera Error";
+          camPromptDesc.textContent = err.message || "Could not access video feed.";
+        }
+      }
+    }
+
+    function stopCamera() {
+      if (videoStream) {
+        videoStream.getTracks().forEach(t => t.stop());
+        videoStream = null;
+      }
+      resetCountdown();
+    }
+
+    // Stop tracks when tab hidden (Requirement 11)
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        if (appState === 'guiding' || appState === 'counting_down') {
+          stopCamera();
+          appState = 'idle';
+          camPromptTitle.textContent = "Camera Paused";
+          camPromptDesc.textContent = "Return to this tab to resume face verification.";
+          cameraPrompt.style.display = "flex";
+          updateUI();
+        }
+      } else {
+        if (appState === 'idle' && !isOldVersionMode) {
+          startCamera();
+        }
+      }
+    });
+
+    /* ==========================================================================
+       Mathematical & Image Analysis Utilities
+       ========================================================================== */
+    // Compute perceived luminance (0 - 255) from RGB
+    function getLuminance(r, g, b) {
+      return 0.299 * r + 0.587 * g + 0.114 * b;
+    }
+
+    // Measure Laplacian Variance on face region grayscale image (Sharpness / Blur)
+    function computeLaplacianVariance(grayscale, width, height) {
+      if (width < 3 || height < 3) return 0;
+      let sum = 0;
+      let sumSq = 0;
+      let count = 0;
+
+      for (let y = 1; y < height - 1; y++) {
+        const row = y * width;
+        const rowAbove = (y - 1) * width;
+        const rowBelow = (y + 1) * width;
+
+        for (let x = 1; x < width - 1; x++) {
+          // Standard 3x3 Discrete Laplacian Kernel [0, 1, 0; 1, -4, 1; 0, 1, 0]
+          const lap = grayscale[rowAbove + x] +
+                      grayscale[rowBelow + x] +
+                      grayscale[row + (x - 1)] +
+                      grayscale[row + (x + 1)] -
+                      4 * grayscale[row + x];
+
+          sum += lap;
+          sumSq += lap * lap;
+          count++;
+        }
+      }
+
+      if (count === 0) return 0;
+      const mean = sum / count;
+      const variance = (sumSq / count) - (mean * mean);
+      return Math.max(0, variance);
+    }
+
+    // Calculate Eye Aspect Ratio (EAR) from landmarks
+    function calculateEAR(pTop, pBottom, pLeft, pRight) {
+      const vDist = Math.hypot(pTop.x - pBottom.x, pTop.y - pBottom.y);
+      const hDist = Math.hypot(pLeft.x - pRight.x, pLeft.y - pRight.y);
+      return hDist > 0 ? vDist / hDist : 0;
+    }
+
+    /* ==========================================================================
+       Frame Evaluation Engine (10 times/sec, 9 Comprehensive Checks)
+       ========================================================================== */
+    async function evaluateCurrentFrame() {
+      // 1. Check for Forced Simulation Results (Requirement 9)
+      if (forcedCondition !== 'none') {
+        return evaluateForcedCondition(forcedCondition);
+      }
+
+      // Check detector and video readiness
+      if (!detectorReady || videoFeed.readyState < 2) {
+        return {
+          passed: false,
+          topFailure: {
+            key: 'waiting',
+            headline: 'Starting verification…',
+            subline: 'Hold phone steady while face model loads.',
+            helpDetail: 'Camera is initializing. Please wait a moment.',
+            icon: ICONS.faceSearch,
+            state: 'neutral'
+          },
+          checks: {}
+        };
+      }
+
+      let detectedFaces = [];
+      let landmarks = null;
+
+      // Detect face using active detector
+      if (detectorType === 'mediapipe' && faceLandmarker) {
+        try {
+          const result = faceLandmarker.detectForVideo(videoFeed, performance.now());
+          if (result && result.faceLandmarks) {
+            detectedFaces = result.faceLandmarks;
+            if (detectedFaces.length > 0) {
+              landmarks = detectedFaces[0];
+            }
+          }
+        } catch (e) {
+          console.warn("Detection cycle exception:", e);
+        }
+      } else if (detectorType === 'native' && window.nativeFaceDetector) {
+        try {
+          detectedFaces = await window.nativeFaceDetector.detect(videoFeed);
+        } catch (e) {}
+      }
+
+      const checks = {
+        facePresent: { pass: false, val: '0 faces' },
+        faceSize: { pass: false, val: '--', reason: null },
+        facePosition: { pass: false, val: '--', reason: null },
+        faceStraight: { pass: false, val: '--', reason: null },
+        eyesOpen: { pass: false, val: '--' },
+        brightness: { pass: false, val: '--', reason: null },
+        glare: { pass: false, val: '--' },
+        sharpness: { pass: false, val: '--' },
+        stability: { pass: false, val: '--' }
+      };
+
+      // --- CHECK 1: Face Present (exactly one face) ---
+      if (detectedFaces.length === 0) {
+        checks.facePresent = { pass: false, val: 'No face seen' };
+        return buildEvaluationResult(checks, {
+          key: 'no_face',
+          headline: 'Looking for your face…',
+          subline: 'Hold the phone in front of your face.',
+          helpDetail: 'The camera cannot see a face. Hold the phone upright at chest or eye level and look directly at the screen.',
+          icon: ICONS.faceSearch,
+          state: 'red'
+        });
+      }
+
+      if (detectedFaces.length > 1) {
+        checks.facePresent = { pass: false, val: `${detectedFaces.length} faces (reject)` };
+        return buildEvaluationResult(checks, {
+          key: 'multi_face',
+          headline: 'Only one person allowed',
+          subline: 'Please be alone in the camera frame.',
+          helpDetail: 'More than one face was seen. The government life certificate requires only the pensioner to be in the photo.',
+          icon: ICONS.faceMulti,
+          state: 'red'
+        });
+      }
+
+      checks.facePresent = { pass: true, val: '1 face detected' };
+
+      // Calculate Bounding Box
+      let box = { x: 0, y: 0, w: 0, h: 0, cx: 0.5, cy: 0.5 };
+      if (detectorType === 'mediapipe' && landmarks) {
+        let minX = 1, maxX = 0, minY = 1, maxY = 0;
+        for (const pt of landmarks) {
+          if (pt.x < minX) minX = pt.x;
+          if (pt.x > maxX) maxX = pt.x;
+          if (pt.y < minY) minY = pt.y;
+          if (pt.y > maxY) maxY = pt.y;
+        }
+        box.x = minX;
+        box.y = minY;
+        box.w = maxX - minX;
+        box.h = maxY - minY;
+        // Face center: use nose tip (index 1) if available, else box center
+        box.cx = landmarks[1] ? landmarks[1].x : (minX + maxX) / 2;
+        box.cy = landmarks[1] ? landmarks[1].y : (minY + maxY) / 2;
+      } else if (detectorType === 'native' && detectedFaces[0]) {
+        const b = detectedFaces[0].boundingBox;
+        const vw = videoFeed.videoWidth || 640;
+        const vh = videoFeed.videoHeight || 480;
+        box = {
+          x: b.x / vw,
+          y: b.y / vh,
+          w: b.width / vw,
+          h: b.height / vh,
+          cx: (b.x + b.width / 2) / vw,
+          cy: (b.y + b.height / 2) / vh
+        };
+      }
+
+      // --- CHECK 2: Face Size (30% to 60% of frame height) ---
+      const sizePct = Math.round(box.h * 100);
+      checks.faceSize.val = `${sizePct}% height`;
+      if (box.h < CONFIG.FACE_SIZE_MIN) {
+        checks.faceSize.pass = false;
+        checks.faceSize.reason = 'toofar';
+      } else if (box.h > CONFIG.FACE_SIZE_MAX) {
+        checks.faceSize.pass = false;
+        checks.faceSize.reason = 'tooclose';
+      } else {
+        checks.faceSize.pass = true;
+      }
+
+      // --- CHECK 3: Face Position (Centered in Oval) ---
+      // Note: Video is mirrored with CSS scaleX(-1) for natural selfie mirror perception
+      const dx = box.cx - CONFIG.OVAL_CENTER_X;
+      const dy = box.cy - CONFIG.OVAL_CENTER_Y;
+      checks.facePosition.val = `dx: ${Math.round(dx*100)}%, dy: ${Math.round(dy*100)}%`;
+
+      if (dx > CONFIG.CENTER_TOLERANCE_X) {
+        // Mirrored view: moving phone left moves user right
+        checks.facePosition.pass = false;
+        checks.facePosition.reason = 'move_left';
+      } else if (dx < -CONFIG.CENTER_TOLERANCE_X) {
+        checks.facePosition.pass = false;
+        checks.facePosition.reason = 'move_right';
+      } else if (dy > CONFIG.CENTER_TOLERANCE_Y) {
+        checks.facePosition.pass = false;
+        checks.facePosition.reason = 'move_up';
+      } else if (dy < -CONFIG.CENTER_TOLERANCE_Y) {
+        checks.facePosition.pass = false;
+        checks.facePosition.reason = 'move_down';
+      } else {
+        checks.facePosition.pass = true;
+      }
+
+      // --- CHECK 4: Face Straight (Roll, Yaw, Pitch) ---
+      if (landmarks) {
+        // Roll: angle between left eye (33) and right eye (263)
+        const eyeLeft = landmarks[33];
+        const eyeRight = landmarks[263];
+        const rollRad = Math.atan2(eyeRight.y - eyeLeft.y, eyeRight.x - eyeLeft.x);
+        const rollDeg = Math.abs(rollRad * (180 / Math.PI));
+
+        // Yaw: nose bridge (1) to cheeks (234 left, 454 right)
+        const nose = landmarks[1];
+        const cheekL = landmarks[234];
+        const cheekR = landmarks[454];
+        let yawOffset = 0;
+        if (cheekL && cheekR && nose) {
+          const distL = Math.abs(nose.x - cheekL.x);
+          const distR = Math.abs(cheekR.x - nose.x);
+          const totalCheek = distL + distR;
+          if (totalCheek > 0) {
+            yawOffset = Math.abs((distL / totalCheek) - 0.5);
+          }
+        }
+
+        checks.faceStraight.val = `Tilt: ${rollDeg.toFixed(1)}°, Turn: ${yawOffset.toFixed(2)}`;
+        if (rollDeg > CONFIG.MAX_HEAD_ROLL_DEG) {
+          checks.faceStraight.pass = false;
+          checks.faceStraight.reason = 'tilt';
+        } else if (yawOffset > CONFIG.MAX_HEAD_YAW_OFFSET) {
+          checks.faceStraight.pass = false;
+          checks.faceStraight.reason = 'turn';
+        } else {
+          checks.faceStraight.pass = true;
+        }
+
+        // --- CHECK 5: Eyes Open ---
+        const earLeft = calculateEAR(landmarks[159], landmarks[145], landmarks[33], landmarks[133]);
+        const earRight = calculateEAR(landmarks[386], landmarks[374], landmarks[362], landmarks[263]);
+        const avgEar = (earLeft + earRight) / 2;
+        checks.eyesOpen.val = `Openness: ${(avgEar * 10).toFixed(1)}`;
+        checks.eyesOpen.pass = avgEar >= CONFIG.MIN_EYE_ASPECT_RATIO;
+      } else {
+        checks.faceStraight.pass = true;
+        checks.faceStraight.val = 'OK (Basic)';
+        checks.eyesOpen.pass = true;
+        checks.eyesOpen.val = 'OK (Basic)';
+      }
+
+      // --- Pixel Analysis on Face Bounding Box (Brightness, Glare, Sharpness) ---
+      const vw = videoFeed.videoWidth || 640;
+      const vh = videoFeed.videoHeight || 480;
+
+      // Extract face region coordinates
+      const cropX = Math.max(0, Math.floor(box.x * vw));
+      const cropY = Math.max(0, Math.floor(box.y * vh));
+      const cropW = Math.min(vw - cropX, Math.floor(box.w * vw));
+      const cropH = Math.min(vh - cropY, Math.floor(box.h * vh));
+
+      let avgBrightness = 120;
+      let glarePct = 0;
+      let sharpnessScore = 60;
+      let stabilityScore = 0.5;
+
+      if (cropW > 10 && cropH > 10) {
+        // Draw face crop to a standardized 100x100 analysis canvas
+        const sampleSize = 100;
+        analysisCanvas.width = sampleSize;
+        analysisCanvas.height = sampleSize;
+        analysisCtx.drawImage(videoFeed, cropX, cropY, cropW, cropH, 0, 0, sampleSize, sampleSize);
+
+        const imgData = analysisCtx.getImageData(0, 0, sampleSize, sampleSize);
+        const data = imgData.data;
+        const totalPixels = sampleSize * sampleSize;
+
+        let totalLuminance = 0;
+        let glareCount = 0;
+        const gray = new Uint8Array(totalPixels);
+
+        for (let i = 0; i < totalPixels; i++) {
+          const idx = i * 4;
+          const r = data[idx];
+          const g = data[idx + 1];
+          const b = data[idx + 2];
+          const lum = getLuminance(r, g, b);
+          gray[i] = lum;
+          totalLuminance += lum;
+
+          if (lum >= CONFIG.GLARE_PIXEL_CUTOFF || (r > 240 && g > 240 && b > 240)) {
+            glareCount++;
+          }
+        }
+
+        avgBrightness = totalLuminance / totalPixels;
+        glarePct = (glareCount / totalPixels) * 100;
+        sharpnessScore = computeLaplacianVariance(gray, sampleSize, sampleSize);
+
+        // --- CHECK 9: Stability & Motion (The Shaky Check) ---
+        const now = performance.now();
+        motionHistory.push({ cx: box.cx, cy: box.cy, h: box.h, t: now });
+        if (motionHistory.length > CONFIG.STABILITY_FRAME_HISTORY) {
+          motionHistory.shift();
+        }
+
+        // 1. Box displacement variance
+        let maxDrift = 0;
+        if (motionHistory.length >= 3) {
+          const first = motionHistory[0];
+          for (let m = 1; m < motionHistory.length; m++) {
+            const d = Math.hypot(motionHistory[m].cx - first.cx, motionHistory[m].cy - first.cy);
+            if (d > maxDrift) maxDrift = d;
+          }
+        }
+
+        // 2. Mean frame-to-frame pixel difference
+        let meanPixelDiff = 0;
+        if (previousFaceGrayscale && previousFaceGrayscale.length === totalPixels) {
+          let diffSum = 0;
+          for (let p = 0; p < totalPixels; p += 4) { // Sample every 4th pixel for speed
+            diffSum += Math.abs(gray[p] - previousFaceGrayscale[p]);
+          }
+          meanPixelDiff = diffSum / (totalPixels / 4);
+        }
+        previousFaceGrayscale = gray;
+
+        stabilityScore = maxDrift * 100;
+        const isSteady = (maxDrift <= CONFIG.MAX_FACE_DRIFT_NORM) && (meanPixelDiff <= CONFIG.MAX_FRAME_DIFF_MEAN);
+        checks.stability.pass = isSteady;
+        checks.stability.val = isSteady ? `Steady (${meanPixelDiff.toFixed(1)})` : `Shaky (${meanPixelDiff.toFixed(1)})`;
+      }
+
+      // --- CHECK 6: Face Brightness ---
+      const brightnessPct = Math.round((avgBrightness / 255) * 100);
+      checks.brightness.val = `${brightnessPct}%`;
+      if (avgBrightness < CONFIG.MIN_FACE_BRIGHTNESS) {
+        checks.brightness.pass = false;
+        checks.brightness.reason = 'dark';
+      } else if (avgBrightness > CONFIG.MAX_FACE_BRIGHTNESS) {
+        checks.brightness.pass = false;
+        checks.brightness.reason = 'bright';
+      } else {
+        checks.brightness.pass = true;
+      }
+
+      // --- CHECK 7: Glare ---
+      checks.glare.val = `${glarePct.toFixed(1)}% pixels`;
+      checks.glare.pass = glarePct <= CONFIG.MAX_GLARE_PERCENT;
+
+      // --- CHECK 8: Sharpness ---
+      checks.sharpness.val = `Score ${Math.round(sharpnessScore)}`;
+      checks.sharpness.pass = sharpnessScore >= CONFIG.MIN_SHARPNESS_LAPLACIAN;
+
+      // --- PRIORITY RESOLUTION (Requirement 5: Strict Priority Order) ---
+      // Priority: No face -> Size -> Center -> Straight -> Brightness -> Glare -> Eyes -> Sharpness -> Stability
+      let topFailure = null;
+
+      if (!checks.faceSize.pass) {
+        if (checks.faceSize.reason === 'toofar') {
+          topFailure = {
+            key: 'size_far',
+            headline: 'Move a little closer',
+            subline: 'Your face is too small in the oval.',
+            helpDetail: 'Hold your phone a bit closer to your face so your face fills the circle outline comfortably.',
+            icon: ICONS.moveCloser,
+            state: 'amber'
+          };
+        } else {
+          topFailure = {
+            key: 'size_close',
+            headline: 'Move a little farther back',
+            subline: 'Your face is too close to the camera.',
+            helpDetail: 'Hold the phone a little further away at comfortable arm distance.',
+            icon: ICONS.moveBack,
+            state: 'amber'
+          };
+        }
+      } else if (!checks.facePosition.pass) {
+        switch (checks.facePosition.reason) {
+          case 'move_left':
+            topFailure = {
+              key: 'pos_left',
+              headline: 'Move phone a little left',
+              subline: 'Center your face inside the oval guide.',
+              helpDetail: 'Tilt or shift your phone slightly to your left until your face rests inside the dotted oval.',
+              icon: ICONS.arrowLeft,
+              state: 'amber'
+            };
+            break;
+          case 'move_right':
+            topFailure = {
+              key: 'pos_right',
+              headline: 'Move phone a little right',
+              subline: 'Center your face inside the oval guide.',
+              helpDetail: 'Tilt or shift your phone slightly to your right until your face rests inside the dotted oval.',
+              icon: ICONS.arrowRight,
+              state: 'amber'
+            };
+            break;
+          case 'move_up':
+            topFailure = {
+              key: 'pos_up',
+              headline: 'Move phone a little up',
+              subline: 'Raise the phone towards eye level.',
+              helpDetail: 'Raise the phone slightly so you are not looking down at the screen.',
+              icon: ICONS.arrowUp,
+              state: 'amber'
+            };
+            break;
+          case 'move_down':
+            topFailure = {
+              key: 'pos_down',
+              headline: 'Move phone a little down',
+              subline: 'Lower the phone towards eye level.',
+              helpDetail: 'Lower your phone slightly so your face lines up with the guide circle.',
+              icon: ICONS.arrowDown,
+              state: 'amber'
+            };
+            break;
+        }
+      } else if (!checks.faceStraight.pass) {
+        if (checks.faceStraight.reason === 'tilt') {
+          topFailure = {
+            key: 'straight_tilt',
+            headline: 'Keep your head level',
+            subline: 'Try not to tilt your head sideways.',
+            helpDetail: 'Hold your head straight upright so both eyes are at the same level.',
+            icon: ICONS.tiltHead,
+            state: 'amber'
+          };
+        } else {
+          topFailure = {
+            key: 'straight_turn',
+            headline: 'Look straight at the screen',
+            subline: 'Turn your face towards the camera lens.',
+            helpDetail: 'Look directly at the camera at the top of your phone, not away to the side.',
+            icon: ICONS.faceSearch,
+            state: 'amber'
+          };
+        }
+      } else if (!checks.brightness.pass) {
+        if (checks.brightness.reason === 'dark') {
+          topFailure = {
+            key: 'light_dark',
+            headline: 'Photo too dark',
+            subline: 'Move near a window or turn on a light.',
+            helpDetail: 'We need more light on your face. Try facing a window or turning on an overhead room light.',
+            icon: ICONS.sunDark,
+            state: 'amber'
+          };
+        } else {
+          topFailure = {
+            key: 'light_bright',
+            headline: 'Too much bright light',
+            subline: 'Turn away from the direct light.',
+            helpDetail: 'There is too much direct light or sunlight shining directly into the camera.',
+            icon: ICONS.sunGlare,
+            state: 'amber'
+          };
+        }
+      } else if (!checks.glare.pass) {
+        topFailure = {
+          key: 'glare',
+          headline: 'Too much glare on face',
+          subline: 'Turn slightly away from bright light behind you.',
+          helpDetail: 'Bright reflections or backlight are hiding your facial features. Step away from bright lights behind your head.',
+          icon: ICONS.sunGlare,
+          state: 'amber'
+        };
+      } else if (!checks.eyesOpen.pass) {
+        topFailure = {
+          key: 'eyes',
+          headline: 'Please open your eyes',
+          subline: 'Look comfortably at the camera.',
+          helpDetail: 'Both eyes must be open for the biometric verification to be accepted by the pension authority.',
+          icon: ICONS.eyesClosed,
+          state: 'amber'
+        };
+      } else if (!checks.sharpness.pass) {
+        topFailure = {
+          key: 'sharpness',
+          headline: 'Photo is blurry',
+          subline: 'Wipe your camera lens and hold steady.',
+          helpDetail: 'The camera lens might have a smudge or fingerprint. Gently wipe the lens with a clean cloth.',
+          icon: ICONS.blurry,
+          state: 'amber'
+        };
+      } else if (!checks.stability.pass) {
+        topFailure = {
+          key: 'stability',
+          headline: 'Hold the phone still',
+          subline: 'Keep both hands steady for capture.',
+          helpDetail: 'Rest your elbows on a table or hold the phone firmly with both hands so it does not shake.',
+          icon: ICONS.shaky,
+          state: 'amber'
+        };
+      }
+
+      return buildEvaluationResult(checks, topFailure);
+    }
+
+    // Helper to format evaluation output
+    function buildEvaluationResult(checks, topFailure) {
+      const allPassed = (topFailure === null);
+      return {
+        passed: allPassed,
+        topFailure: topFailure || {
+          key: 'all_good',
+          headline: 'Perfect! Hold still…',
+          subline: 'Taking your photo automatically now.',
+          helpDetail: 'Everything is clear and aligned! Hold still for just one second.',
+          icon: ICONS.success,
+          state: 'green'
+        },
+        checks: checks
+      };
+    }
+
+    // Evaluate simulated forced condition (Requirement 9)
+    function evaluateForcedCondition(condition) {
+      const checks = {
+        facePresent: { pass: true, val: '1 face' },
+        faceSize: { pass: true, val: '45%' },
+        facePosition: { pass: true, val: 'Centered' },
+        faceStraight: { pass: true, val: 'Level' },
+        eyesOpen: { pass: true, val: 'Open' },
+        brightness: { pass: true, val: '62%' },
+        glare: { pass: true, val: '1.2%' },
+        sharpness: { pass: true, val: 'Score 150' },
+        stability: { pass: true, val: 'Steady' }
+      };
+
+      let fail = null;
+      switch (condition) {
+        case 'dark':
+          checks.brightness = { pass: false, val: '18% (Too Dark)' };
+          fail = { key: 'light_dark', headline: 'Photo too dark', subline: 'Move near a window or turn on a light.', helpDetail: 'We need more light on your face. Try facing a window or turning on a lamp.', icon: ICONS.sunDark, state: 'amber' };
+          break;
+        case 'glare':
+          checks.glare = { pass: false, val: '24% (Blown Out)' };
+          fail = { key: 'glare', headline: 'Too much glare on face', subline: 'Turn slightly away from bright light.', helpDetail: 'Bright backlight or reflections are obscuring facial details.', icon: ICONS.sunGlare, state: 'amber' };
+          break;
+        case 'blur':
+          checks.sharpness = { pass: false, val: 'Score 18 (Blurry)' };
+          fail = { key: 'sharpness', headline: 'Photo is blurry', subline: 'Wipe your camera lens and hold steady.', helpDetail: 'The camera lens might have a smudge. Please wipe it clean.', icon: ICONS.blurry, state: 'amber' };
+          break;
+        case 'shaky':
+          checks.stability = { pass: false, val: 'Shaky Movement' };
+          fail = { key: 'stability', headline: 'Hold the phone still', subline: 'Keep both hands steady for capture.', helpDetail: 'Rest your arms on a table or steady your phone.', icon: ICONS.shaky, state: 'amber' };
+          break;
+        case 'noface':
+          checks.facePresent = { pass: false, val: '0 faces' };
+          fail = { key: 'no_face', headline: 'Looking for your face…', subline: 'Hold the phone in front of your face.', helpDetail: 'Camera does not see a face. Look directly into the phone.', icon: ICONS.faceSearch, state: 'red' };
+          break;
+        case 'toofar':
+          checks.faceSize = { pass: false, val: '18% (Too Far)' };
+          fail = { key: 'size_far', headline: 'Move a little closer', subline: 'Your face is too small in the oval.', helpDetail: 'Bring the phone slightly closer to your face.', icon: ICONS.moveCloser, state: 'amber' };
+          break;
+        case 'tooclose':
+          checks.faceSize = { pass: false, val: '72% (Too Close)' };
+          fail = { key: 'size_close', headline: 'Move a little farther back', subline: 'Your face is too close to the camera.', helpDetail: 'Hold the phone at arm’s length away.', icon: ICONS.moveBack, state: 'amber' };
+          break;
+        case 'offcentre':
+          checks.facePosition = { pass: false, val: 'Off-centre (Right)' };
+          fail = { key: 'pos_left', headline: 'Move phone a little left', subline: 'Center your face inside the oval guide.', helpDetail: 'Shift your phone slightly left.', icon: ICONS.arrowLeft, state: 'amber' };
+          break;
+        case 'headturned':
+          checks.faceStraight = { pass: false, val: 'Turn: 0.32' };
+          fail = { key: 'straight_turn', headline: 'Look straight at the screen', subline: 'Turn your face towards the camera.', helpDetail: 'Look directly at the screen.', icon: ICONS.faceSearch, state: 'amber' };
+          break;
+        case 'eyesclosed':
+          checks.eyesOpen = { pass: false, val: 'Closed' };
+          fail = { key: 'eyes', headline: 'Please open your eyes', subline: 'Look comfortably at the camera.', helpDetail: 'Both eyes must be open for authentication.', icon: ICONS.eyesClosed, state: 'amber' };
+          break;
+        case 'good':
+          // All pass in simulation mode
+          fail = null;
+          break;
+      }
+      return buildEvaluationResult(checks, fail);
+    }
+
+    /* ==========================================================================
+       UI Updates & Anti-Flicker Instruction Dispatcher (Requirement 5)
+       ========================================================================== */
+    function updateInstructionUI(failureOrSuccess) {
+      const now = performance.now();
+
+      // Enforce anti-flicker: message must stay for at least 700ms before changing
+      // (Unless transitioning to success / countdown)
+      if (currentMessageKey !== failureOrSuccess.key) {
+        if (currentMessageKey && (now - messageDisplayTimestamp < CONFIG.MIN_MESSAGE_DISPLAY_MS) && failureOrSuccess.key !== 'all_good') {
+          return; // Suppress flicker, wait for cooldown
+        }
+        currentMessageKey = failureOrSuccess.key;
+        messageDisplayTimestamp = now;
+
+        // Update Instruction Box
+        instructionCard.className = `instruction-card state-${failureOrSuccess.state}`;
+        instructionIcon.innerHTML = failureOrSuccess.icon;
+        instructionHeadline.textContent = failureOrSuccess.headline;
+        instructionSubline.textContent = failureOrSuccess.subline;
+
+        // Screen reader announcement
+        srLiveRegion.textContent = `${failureOrSuccess.headline}. ${failureOrSuccess.subline}`;
+
+        // Spoken voice guidance
+        speakGuidance(`${failureOrSuccess.headline}. ${failureOrSuccess.subline}`);
+
+        // Update Help Modal content so "Help me" always reflects current issue
+        helpTitle.textContent = failureOrSuccess.headline;
+        helpDetailText.textContent = failureOrSuccess.helpDetail;
+      }
+
+      // Update oval guide ring colors
+      ovalTrack.className = `oval-track state-${failureOrSuccess.state}`;
+    }
+
+    // Update Live Quality Checklist table in the side panel
+    function updateChecklistUI(checks) {
+      if (!checklistToggle.checked) return;
+
+      const keys = [
+        { id: 'face-present', obj: checks.facePresent },
+        { id: 'face-size', obj: checks.faceSize },
+        { id: 'face-position', obj: checks.facePosition },
+        { id: 'face-straight', obj: checks.faceStraight },
+        { id: 'eyes-open', obj: checks.eyesOpen },
+        { id: 'brightness', obj: checks.brightness },
+        { id: 'glare', obj: checks.glare },
+        { id: 'sharpness', obj: checks.sharpness },
+        { id: 'stability', obj: checks.stability }
+      ];
+
+      for (const item of keys) {
+        if (!item.obj) continue;
+        const badge = document.getElementById(`badge-${item.id}`);
+        const val = document.getElementById(`val-${item.id}`);
+
+        if (badge && val) {
+          val.textContent = item.obj.val || (item.obj.pass ? 'PASS' : 'FAIL');
+          badge.className = `check-status-badge ${item.obj.pass ? 'pass' : 'fail'}`;
+          badge.textContent = item.obj.pass ? 'PASS' : 'FAIL';
+        }
+      }
+    }
+
+    /* ==========================================================================
+       Continuous 1.5s Countdown & Auto-Capture Engine (Requirement 1 & 7)
+       ========================================================================== */
+    function resetCountdown() {
+      countdownStartTime = null;
+      countdownBadge.classList.remove('active');
+      countdownRing.style.strokeDashoffset = '700';
+    }
+
+    function handleCountdown(timestamp) {
+      if (!countdownStartTime) {
+        countdownStartTime = timestamp;
+        countdownBadge.classList.add('active');
+        countdownSecs.textContent = "1.5s";
+      }
+
+      const elapsed = timestamp - countdownStartTime;
+      const remainingSecs = Math.max(0, (CONFIG.COUNTDOWN_DURATION_MS - elapsed) / 1000);
+      countdownSecs.textContent = `${remainingSecs.toFixed(1)}s`;
+
+      // Animate SVG ring from 700 down to 0
+      const progress = Math.min(1.0, elapsed / CONFIG.COUNTDOWN_DURATION_MS);
+      const strokeOffset = 700 * (1 - progress);
+      countdownRing.style.strokeDashoffset = `${strokeOffset}`;
+
+      if (elapsed >= CONFIG.COUNTDOWN_DURATION_MS) {
+        // Continuous 1.5s countdown completed successfully! Trigger auto-capture
+        resetCountdown();
+        triggerAutoCapture();
+      }
+    }
+
+    /* ==========================================================================
+       Final Still Strict Check & Capture Result (Requirement 7)
+       ========================================================================== */
+    async function triggerAutoCapture() {
+      // If forced simulation mode is on, prevent real certificate capture (Requirement 9)
+      if (forcedCondition !== 'none') {
+        alert("Demo condition active: Simulated forced checks do not submit real certificates.");
+        return;
+      }
+
+      appState = 'capturing';
+      speakGuidance("Photo captured. Verifying quality.", true);
+
+      // Capture exact still from video feed onto high-resolution capture canvas
+      const vw = videoFeed.videoWidth || 640;
+      const vh = videoFeed.videoHeight || 480;
+      captureCanvas.width = vw;
+      captureCanvas.height = vh;
+      captureCtx.drawImage(videoFeed, 0, 0, vw, vh);
+
+      // Run one final strict quality check on the captured image
+      appState = 'verifying';
+      const finalEval = await evaluateCurrentFrame();
+
+      attemptCounter++;
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      // Convert captured still to dataURL for display
+      const stillDataUrl = captureCanvas.toDataURL('image/jpeg', 0.88);
+      resPreviewImg.src = stillDataUrl;
+
+      if (finalEval.passed) {
+        // Success State
+        appState = 'success';
+        resIconBox.className = 'result-icon-large success';
+        resIconSvg.innerHTML = ICONS.success;
+        resTitle.textContent = "Certificate Submitted!";
+        resDesc.textContent = "Your face authentication passed all verification checks. Your digital life certificate has been submitted.";
+
+        resMetricBrightness.textContent = finalEval.checks.brightness.val || "Good";
+        resMetricSharpness.textContent = finalEval.checks.sharpness.val || "Clear";
+        resMetricStability.textContent = "Steady (1.5s)";
+        resMetricsSummary.style.display = 'grid';
+
+        btnResultAction.textContent = "Done / Submit Another";
+        resultScreen.classList.add('active');
+
+        // Spoken announcement
+        speakGuidance("Certificate submitted successfully. Thank you.", true);
+
+        // Record in Attempt History Log (Requirement 10)
+        appendAttemptLog(attemptCounter, nowStr, 'Success', 'Auto-captured (All checks passed)');
+
+      } else {
+        // Final strict check caught a last-millisecond problem (e.g. sudden shake or blink)
+        appState = 'rejected';
+        resIconBox.className = 'result-icon-large failure';
+        resIconSvg.innerHTML = ICONS.failure;
+        resTitle.textContent = finalEval.topFailure.headline;
+        resDesc.textContent = finalEval.topFailure.helpDetail;
+
+        resMetricBrightness.textContent = finalEval.checks.brightness ? finalEval.checks.brightness.val : "--";
+        resMetricSharpness.textContent = finalEval.checks.sharpness ? finalEval.checks.sharpness.val : "--";
+        resMetricStability.textContent = finalEval.checks.stability ? finalEval.checks.stability.val : "--";
+        resMetricsSummary.style.display = 'grid';
+
+        btnResultAction.textContent = "Retake Photo";
+        resultScreen.classList.add('active');
+
+        speakGuidance(`${finalEval.topFailure.headline}. Tap Retake Photo to try again.`, true);
+
+        appendAttemptLog(attemptCounter, nowStr, 'Rejected', finalEval.topFailure.headline);
+      }
+
+      stopCamera();
+    }
+
+    /* ==========================================================================
+       Today's Version (Old Government App Comparison Mode - Requirement 8)
+       ========================================================================== */
+    function setupOldVersionMode(active) {
+      isOldVersionMode = active;
+      resetCountdown();
+
+      if (active) {
+        // Old app: manual shutter shown, Help Me hidden, oval neutral, no guidance
+        btnShutter.style.display = 'flex';
+        btnHelpMe.style.display = 'none';
+        instructionCard.className = 'instruction-card state-neutral';
+        instructionHeadline.textContent = "Position your face";
+        instructionSubline.textContent = "Tap the red button below to take photo.";
+        ovalTrack.className = 'oval-track state-neutral';
+        countdownRing.style.strokeDashoffset = '700';
+      } else {
+        // Version 2: auto capture, Help Me button, guidance active
+        btnShutter.style.display = 'none';
+        btnHelpMe.style.display = 'flex';
+        appState = 'guiding';
+        updateUI();
+      }
+    }
+
+    // Manual Shutter click in Old App mode: accepts any frame and rejects with generic error
+    btnShutter.addEventListener('click', () => {
+      attemptCounter++;
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      // Grab still
+      const vw = videoFeed.videoWidth || 640;
+      const vh = videoFeed.videoHeight || 480;
+      captureCanvas.width = vw;
+      captureCanvas.height = vh;
+      captureCtx.drawImage(videoFeed, 0, 0, vw, vh);
+      resPreviewImg.src = captureCanvas.toDataURL('image/jpeg', 0.85);
+
+      // Old app behavior: Generic "Verification Failed" with zero explanation
+      resIconBox.className = 'result-icon-large failure';
+      resIconSvg.innerHTML = ICONS.failure;
+      resTitle.textContent = "Verification Failed";
+      resDesc.textContent = "Please try again. (Today's actual government app — provides no explanation or guidance)";
+      resMetricsSummary.style.display = 'none'; // Old app never shows metrics
+      btnResultAction.textContent = "Retry";
+      resultScreen.classList.add('active');
+
+      appendAttemptLog(attemptCounter, nowStr, 'Old App Failed', 'Verification Failed (No reason provided)');
+      stopCamera();
+    });
+
+    /* ==========================================================================
+       Attempt History Logger (Requirement 10)
+       ========================================================================== */
+    function appendAttemptLog(num, time, outcome, reason) {
+      if (logTableBody.children.length === 1 && logTableBody.children[0].children.length === 1) {
+        logTableBody.innerHTML = '';
+      }
+
+      const row = document.createElement('tr');
+      let badgeClass = 'fail';
+      if (outcome === 'Success') badgeClass = 'success';
+      else if (outcome.includes('Old')) badgeClass = 'old';
+
+      row.innerHTML = `
+        <td><strong>#${num}</strong></td>
+        <td>${time}</td>
+        <td><span class="log-badge ${badgeClass}">${outcome}</span></td>
+        <td>${reason}</td>
+      `;
+      logTableBody.prepend(row);
+    }
+
+    btnClearLog.addEventListener('click', () => {
+      logTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--ink-subtle); padding:16px;">No attempts recorded yet.</td></tr>`;
+      attemptCounter = 0;
+    });
+
+    /* ==========================================================================
+       Main Video Processing Loop (~10 times per second)
+       ========================================================================== */
+    let lastProcessTime = 0;
+
+    async function startProcessingLoop() {
+      async function tick(timestamp) {
+        if (!videoStream || isOldVersionMode || appState === 'success' || appState === 'rejected') {
+          return;
+        }
+
+        if (timestamp - lastProcessTime >= CONFIG.CHECK_INTERVAL_MS) {
+          lastProcessTime = timestamp;
+
+          const evalResult = await evaluateCurrentFrame();
+          updateInstructionUI(evalResult.topFailure);
+          updateChecklistUI(evalResult.checks);
+
+          if (evalResult.passed) {
+            // All checks hold -> advance 1.5s countdown ring
+            handleCountdown(timestamp);
+          } else {
+            // Any check fails -> reset countdown ring immediately (Requirement 1)
+            resetCountdown();
+          }
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    /* ==========================================================================
+       Interactive Event Listeners
+       ========================================================================== */
+    // "Help Me" Button opens modal with current problem (Requirement 2)
+    btnHelpMe.addEventListener('click', () => {
+      helpModal.classList.add('open');
+      speakGuidance(`${helpTitle.textContent}. ${helpDetailText.textContent}`, true);
+    });
+
+    btnModalClose.addEventListener('click', () => {
+      helpModal.classList.remove('open');
+    });
+
+    helpModal.addEventListener('click', (e) => {
+      if (e.target === helpModal) helpModal.classList.remove('open');
+    });
+
+    // Result action (Done / Retake)
+    btnResultAction.addEventListener('click', () => {
+      resultScreen.classList.remove('active');
+      appState = 'guiding';
+      startCamera();
+    });
+
+    // Old Version Toggle
+    oldVersionToggle.addEventListener('change', (e) => {
+      setupOldVersionMode(e.target.checked);
+    });
+
+    // Forced demo condition dropdown (Requirement 9)
+    forceSelect.addEventListener('change', (e) => {
+      forcedCondition = e.target.value;
+      if (forcedCondition !== 'none') {
+        forcedWarningNote.classList.add('active');
+      } else {
+        forcedWarningNote.classList.remove('active');
+      }
+    });
+
+    // Checklist Visibility Toggle
+    checklistToggle.addEventListener('change', (e) => {
+      checksGrid.style.display = e.target.checked ? 'flex' : 'none';
+    });
+
+    // Theme Toggle (Light / Dark)
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      document.getElementById('themeIcon').textContent = newTheme === 'light' ? '☀️' : '🌙';
+      localStorage.setItem('jp_theme', newTheme);
+    });
+
+    // Voice Guidance Toggle
+    function setVoiceGuidance(enabled) {
+      voiceGuidanceEnabled = enabled;
+      const text = enabled ? "Voice: ON" : "Voice: OFF";
+      const icon = enabled ? "🔊" : "🔇";
+      document.getElementById('voiceLabel').textContent = text;
+      document.getElementById('voiceIcon').textContent = icon;
+      document.getElementById('quickVoiceIcon').textContent = icon;
+      if (!enabled) window.speechSynthesis.cancel();
+      else speakGuidance("Voice guidance enabled.", true);
+    }
+
+    voiceToggleBtn.addEventListener('click', () => setVoiceGuidance(!voiceGuidanceEnabled));
+    quickVoiceBtn.addEventListener('click', () => setVoiceGuidance(!voiceGuidanceEnabled));
+
+    // Viswan's Experience Accordion
+    const viswanHeader = document.getElementById('viswanHeader');
+    const viswanBody = document.getElementById('viswanBody');
+    const viswanChev = document.getElementById('viswanChev');
+    viswanHeader.addEventListener('click', () => {
+      const isClosed = viswanBody.style.display === 'none';
+      viswanBody.style.display = isClosed ? 'flex' : 'none';
+      viswanChev.textContent = isClosed ? '▾' : '▸';
+    });
+
+    // UI state helper
+    function updateUI() {
+      if (isOldVersionMode) {
+        setupOldVersionMode(true);
+      }
+    }
+
+    /* ==========================================================================
+       Initialization on Load
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Restore theme preference
+      const savedTheme = localStorage.getItem('jp_theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.getElementById('themeIcon').textContent = savedTheme === 'light' ? '☀️' : '🌙';
+      }
+
+      // Initialize Face Detection Models, then Start Camera
+      await initFaceDetector();
+      await startCamera();
+    });
+  </script>
 
 </body>
 </html>
